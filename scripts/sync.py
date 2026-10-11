@@ -55,51 +55,64 @@ def compute_hash(path: Path) -> str:
     return h.hexdigest()
 
 
-def check_target_file(src: Path, dst: Path, fname: str, label: str) -> bool:
+def check_target_file(src: Path, dst: Path, fname: str, label: str, quiet: bool) -> bool:
     """Check a single target file against source. Return True if drifted."""
     src_hash = compute_hash(src)
     dst_hash = compute_hash(dst)
 
     if not dst.exists():
-        print(f"  [MISSING] {fname}")
+        if not quiet:
+            print(f"  [MISSING] {fname}")
         return True
     if src_hash != dst_hash:
-        print(f"  [DRIFTED] {fname}")
-        src_lines = src.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
-        dst_lines = dst.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
-        diff = difflib.unified_diff(
-            src_lines, dst_lines,
-            fromfile=f"standards/{fname}",
-            tofile=f"{label}/{fname}",
-            n=2,
-        )
-        print("".join(list(diff)[:15]))
+        if not quiet:
+            print(f"  [DRIFTED] {fname}")
+            src_lines = src.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
+            dst_lines = dst.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
+            diff = difflib.unified_diff(
+                src_lines, dst_lines,
+                fromfile=f"standards/{fname}",
+                tofile=f"{label}/{fname}",
+                n=2,
+            )
+            print("".join(list(diff)[:15]))
         return True
-    print(f"  [OK]      {fname}")
+    if not quiet:
+        print(f"  [OK]      {fname}")
     return False
 
 
-def check_sync(repo_root: Path, targets: list[tuple[str, Path]]) -> int:
+def check_sync(repo_root: Path, targets: list[tuple[str, Path]], quiet: bool = False) -> int:
     """Verify all targets match repo files byte-for-byte. Return 0 if in sync, 1 if drifted."""
     drift_count = 0
-    print(f"Checking synchronization for {len(STANDARD_FILES)} standard files across {len(targets)} targets...\n")
+    if not quiet:
+        print(f"Checking synchronization for {len(STANDARD_FILES)} standard files across {len(targets)} targets...\n")
 
     for label, target_dir in targets:
-        print(f"Target: {label} ({target_dir})")
+        if not quiet:
+            print(f"Target: {label} ({target_dir})")
         if not target_dir.exists():
-            print(f"  [MISSING] Target directory does not exist: {target_dir}\n")
+            if not quiet:
+                print(f"  [MISSING] Target directory does not exist: {target_dir}\n")
             drift_count += 1
             continue
 
         for fname in STANDARD_FILES:
-            if check_target_file(repo_root / fname, target_dir / fname, fname, label):
+            if check_target_file(repo_root / fname, target_dir / fname, fname, label, quiet):
                 drift_count += 1
-        print()
+        if not quiet:
+            print()
 
     if drift_count == 0:
-        print("All standards are synchronized.")
+        if not quiet:
+            print("All standards are synchronized.")
         return 0
-    print(f"Synchronization check failed with {drift_count} drift(s).")
+
+    if quiet:
+        print(f"\033[0;33m⚠️  [standards] Drift detected across ~/Code or dotfiles ({drift_count} discrepancy).\033[0m")
+        print("   Run 'standards-sync' to auto-heal or 'standards-sync --check' to inspect diffs.")
+    else:
+        print(f"Synchronization check failed with {drift_count} drift(s).")
     return 1
 
 
@@ -162,6 +175,7 @@ def install_hooks(repo_root: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Check for drift without modifying files")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode: suppress output unless drift detected")
     parser.add_argument("--push", action="store_true", help="Push canonical repo standards to all targets")
     parser.add_argument("--pull", action="store_true", help="Pull standards from workspace root into repo")
     parser.add_argument("--install-hooks", action="store_true", help="Install git post-commit and post-merge hooks")
@@ -175,7 +189,7 @@ def main() -> int:
     if args.pull:
         return pull_sync(repo_root)
     if args.check:
-        return check_sync(repo_root, targets)
+        return check_sync(repo_root, targets, quiet=args.quiet)
 
     return push_sync(repo_root, targets)
 
