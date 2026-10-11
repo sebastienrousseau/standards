@@ -9,6 +9,12 @@ All notable changes to Standards are recorded here.
 
 ## 0.0.2 - 2026-10-11
 
+### Added
+
+- Multi-target synchronization utility (`scripts/sync.py`) for workspace root
+  and chezmoi dotfiles distribution.
+- Git hooks installer for automated post-commit and post-merge synchronization.
+
 ### Changed
 
 - Advanced version carriers for the 0.0.2 release iteration cycle.

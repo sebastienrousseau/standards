@@ -36,3 +36,8 @@ jobs:
             exit 1
           fi
           echo "Em dash check passed."
+
+      - name: Validate sync script syntax
+        run: |
+          python3 -m py_compile scripts/sync.py
+          echo "Sync script syntax validated."

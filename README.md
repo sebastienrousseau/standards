@@ -19,6 +19,7 @@
 - [Overview](#overview)
 - [Standards Catalog](#standards-catalog)
 - [Usage Across Workspaces](#usage-across-workspaces)
+- [Synchronization Tooling](#synchronization-tooling)
 - [Versioning and Branch Lifecycle](#versioning-and-branch-lifecycle)
 - [Contributing](#contributing)
 - [Security](#security)
@@ -48,14 +49,24 @@
 
 These master files are tracked at the root of the local workspace `/Users/seb/Code/` and synchronized with `dotfiles` (via Chezmoi) and this repository.
 
-To verify synchronization:
+---
+
+## Synchronization Tooling
+
+Use `standards-sync` (or `python3 scripts/sync.py`) to verify and maintain synchronization between the canonical repository, the active workspace root (`~/Code`), and `dotfiles` (`defaults/Code`):
 
 ```bash
-diff -u /Users/seb/Code/AGENTS.md ./AGENTS.md
-diff -u /Users/seb/Code/GEMINI.md ./GEMINI.md
-diff -u /Users/seb/Code/PR-TEMPLATE.md ./PR-TEMPLATE.md
-diff -u /Users/seb/Code/README-TEMPLATE.md ./README-TEMPLATE.md
-diff -u /Users/seb/Code/REPO-STANDARD.md ./REPO-STANDARD.md
+# Verify synchronization (exits 0 on match, non-zero on drift)
+standards-sync --check
+
+# Push changes from this repository to ~/Code and dotfiles
+standards-sync --push
+
+# Pull changes from ~/Code into this repository
+standards-sync --pull
+
+# Install automatic post-commit and post-merge git hooks
+standards-sync --install-hooks
 ```
 
 ---
