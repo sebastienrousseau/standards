@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
+name: CI
+
+on:
+  push:
+    branches: ["main", "feat/*"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Master Files Exist
+        run: |
+          for f in AGENTS.md GEMINI.md PR-TEMPLATE.md README-TEMPLATE.md REPO-STANDARD.md README.md CODE_OF_CONDUCT.md CONTRIBUTING.md SECURITY.md CHANGELOG.md; do
+            if [ ! -f "$f" ]; then
+              echo "Missing required file: $f"
+              exit 1
+            fi
+          done
+          echo "All required standard files are present."
+
+      - name: Check for prohibited em dashes in PR and docs
+        run: |
+          if grep -rn "—" README.md PR-TEMPLATE.md CHANGELOG.md; then
+            echo "Prohibited em dash found"
+            exit 1
+          fi
+          echo "Em dash check passed."

@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+cff-version: 1.2.0
+title: standards
+message: >-
+  If you use this software in research or development, please cite it using
+  these metadata.
+type: software
+authors:
+  - given-names: Sebastien
+    family-names: Rousseau
+    email: sebastian.rousseau@gmail.com
+repository-code: https://github.com/sebastienrousseau/standards
+url: https://github.com/sebastienrousseau/standards
+abstract: >-
+  Global code standards, specifications, and repository governance conventions
+  for all repositories from Sebastien Rousseau.
+keywords:
+  - standards
+  - specifications
+  - repository-templates
+  - code-quality
+  - agentic-engineering
+license: Apache-2.0 OR MIT
+version: 0.0.1
