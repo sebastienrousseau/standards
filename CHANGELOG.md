@@ -5,6 +5,14 @@
 
 All notable changes to Standards are recorded here.
 
+## Unreleased
+
+## 0.0.2 - 2026-10-11
+
+### Changed
+
+- Advanced version carriers for the 0.0.2 release iteration cycle.
+
 ## 0.0.1 - 2026-10-11
 
 ### Added
