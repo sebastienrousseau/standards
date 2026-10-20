@@ -131,7 +131,9 @@ starting the requested work.
 8. **Humans are accountable; every commit is signed off.**
    - Every commit MUST carry the human's `Signed-off-by:` trailer: commit
      with `git commit -s` (`format.signoff=true`), and amend an unpushed
-     commit that lacks it. The human's standing instruction to sign off is
+     commit that lacks it. The sign-off names only the human, from their
+     git identity; never an agent, a bot or a co-author, and never a second
+     `Signed-off-by:` line. The human's standing instruction to sign off is
      their Developer Certificate of Origin certification; they review the
      work and take responsibility for it. The agent records its own part
      with an `Assisted-by:` trailer (§4).
