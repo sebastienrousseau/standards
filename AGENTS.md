@@ -39,8 +39,15 @@ check without first fixing it, or reporting why it cannot.
    (`gh pr list --author app/dependabot`, `gh api
    repos/<owner>/<repo>/{dependabot,code-scanning,secret-scanning}/alerts?state=open`),
    and the native audit (`cargo audit`/`cargo deny`, `pip-audit`,
-   `npm audit`, `govulncheck`). Fix each one, or open the pull request
-   that fixes it. A scanner that is switched off counts as a finding.
+   `npm audit`, `govulncheck`), and open issues (`gh issue list`). Every
+   one MUST be fully fixed, merged and closed: fold Dependabot updates and
+   alert fixes into the active `feat/v<next-version>` branch, merge it once
+   CI is green, and close each Dependabot PR and issue it supersedes with a
+   comment naming the merged PR. A dependency with a published advisory is
+   constrained in the manifest so no affected version can resolve, forcing
+   users onto a patched release. A finding that cannot be fixed in code (an
+   external registration, a second reviewer) is reported with the exact
+   action that clears it. A scanner that is switched off counts as a finding.
 2. **CI on the default branch.** It must be green. A red default branch is
    fixed before anything is built on top of it.
 3. **Code quality.** The linter and formatter pass with no new
@@ -63,9 +70,13 @@ check without first fixing it, or reporting why it cannot.
    time.
 
 Fixing a finding still follows every other rule: its own branch and pull
-request, the Definition of Done (§2), and **Merge Authority (§4)**; this
-section authorises preparing fixes, not merging them. Report what the check
-found, what was fixed, and what remains, before starting the requested work.
+request and the Definition of Done (§2). This section is the user's
+standing instruction to merge the pull request that carries these fixes once
+its CI is green, and to close the Dependabot PRs and issues it supersedes; it
+is the one exception to **Merge Authority (§4)**, and it covers nothing else
+on that PR's branch beyond hygiene fixes and the release it rides with.
+Report what the check found, what was fixed, and what remains, before
+starting the requested work.
 
 ---
 
@@ -82,7 +93,7 @@ found, what was fixed, and what remains, before starting the requested work.
    - Retain existing comments, docstrings, architecture notes, and license headers. Never strip existing explanatory comments to make a diff smaller.
 
 4. **Keep the workspace root clean.**
-   - `/Users/seb/Code` MUST contain only the `Forks/`, `Private/`, `Public/`, and
+   - `~/Code` MUST contain only the `Forks/`, `Private/`, `Public/`, and
      `Work/` portfolio directories plus root Markdown files that define agent or
      repository conventions.
    - Tooling, generated reports, caches, editor settings, and repository content
@@ -117,11 +128,17 @@ found, what was fixed, and what remains, before starting the requested work.
      (§1.8) or the scope rule against coupling unrelated changes: fix
      forward on the right branch, as its own commit.
 
-8. **Humans are accountable; agents do not attest.**
-   - An agent MUST NOT add a `Signed-off-by:` trailer or any other legal
-     certification (a Developer Certificate of Origin, a CLA, a licence
-     statement) on a person's behalf. The human who submits the work reviews
-     it, certifies it, and takes responsibility for it.
+8. **Humans are accountable; every commit is signed off.**
+   - Every commit MUST carry the human's `Signed-off-by:` trailer: commit
+     with `git commit -s` (`format.signoff=true`), and amend an unpushed
+     commit that lacks it. The sign-off names only the human, from their
+     git identity; never an agent, a bot or a co-author, and never a second
+     `Signed-off-by:` line. The human's standing instruction to sign off is
+     their Developer Certificate of Origin certification; they review the
+     work and take responsibility for it. The agent records its own part
+     with an `Assisted-by:` trailer (§4).
+   - An agent MUST NOT make any other legal certification on a person's
+     behalf: no CLA, licence statement or terms accepted for them.
    - An agent MUST NOT send anything to other people or projects on its own:
      no emails, issues or security reports filed with another project,
      registry publishes, release announcements or social posts. It prepares
@@ -260,7 +277,8 @@ found, what was fixed, and what remains, before starting the requested work.
 - **Footer**: Reference issues or breaking changes (`Fixes #123`, `BREAKING CHANGE: description`).
 - **Signing & Hooks**: Repositories use SSH commit signing (`commit.gpgsign=true`) and signoffs (`format.signoff=true`). Keep commits atomic and working trees clean.
   - A commit signature proves which key made the commit. A `Signed-off-by:`
-    certifies the right to contribute it, and only the human adds that (§1.8).
+    certifies the right to contribute it; every commit carries the human's
+    (§1.8).
 - **Attribution**: A commit an agent helped produce says so in a trailer:
   `Assisted-by: <agent>:<model> [<analysis tools>]`, for example
   `Assisted-by: Claude Code:claude-opus-5-5 ruff clippy`. List specialised
@@ -390,7 +408,7 @@ language has an established equivalent.
 
 ### 7.1 Source and routing
 
-- `/Users/seb/Code/README-TEMPLATE.md` is the single source of truth for a
+- `~/Code/README-TEMPLATE.md` is the single source of truth for a
   repository's primary `README.md` layout.
 - When generating or modifying a primary README, agents MUST strictly follow the
   exact layout, HTML structure, badge syntax, and header order in that template.
@@ -499,7 +517,7 @@ adapted from the Linux kernel's rules for AI coding assistants.
    not been seen to work.
 6. **Commit it** on its own branch, with a message stating the problem, the
    cause, the fix and how it was verified, a `Fixes:` reference and an
-   `Assisted-by:` trailer, and no `Signed-off-by:` (§4, §1.8).
+   `Assisted-by:` trailer, and the human's `Signed-off-by:` (§1.8).
 7. **Classify it.** Decide from the repository's `SECURITY.md` or threat model
    whether it is a vulnerability or an ordinary bug, and route it
    accordingly: a vulnerability goes through private disclosure, never a
@@ -508,3 +526,48 @@ adapted from the Linux kernel's rules for AI coding assistants.
    platform, a test that could not run.
 9. **Hand it to the human.** The agent never sends a bug report, security
    report or patch outside the machine itself (§1.8).
+
+---
+
+## 10. Agent Sessions and the Prompt Cache
+
+Every turn re-sends the whole conversation, and the provider's prompt cache
+reuses only the unchanged start of it. A change anywhere in that prefix makes
+everything after it run and bill as uncached input. Keep the prefix
+append-only. Source: <https://code.claude.com/docs/en/prompt-caching>.
+
+1. **Pick the model once, at session start.** Each model has its own cache,
+   so a mid-task switch (`/model`, a skill or command whose frontmatter
+   names another model, `opusplan` toggling plan mode) re-reads the entire
+   history with no cache hits. Switch only between tasks.
+2. **Set effort at the start too.** Whether changing effort keeps the
+   cache depends on the model and provider (the source above lists which
+   do), so settle it before the work begins. Toggling `/advisor` keeps the
+   cache.
+3. **Rewind, don't compact, mid-task.** `/rewind` returns to a prefix that
+   is already cached; `/compact` builds a new one. Abandon a dead end by
+   rewinding, and compact only at a break between tasks.
+4. **Configure tools before the session.** Adding or removing tools that
+   load upfront (an MCP server without tool search, a plugin that provides
+   one, a bare tool-name deny rule) invalidates the cache. With tool search
+   on, the default on supported models, MCP servers connecting or
+   disconnecting mid-session do not.
+5. **Instruction-file edits apply at the next session.** Editing
+   `AGENTS.md` or `CLAUDE.md` mid-session keeps the cache but does not
+   change the running session; the edit loads after `/clear`, `/compact` or
+   a restart. Restart when a rule change must apply now.
+6. **Keep always-loaded text stable.** Dates, version numbers and other
+   values that change between releases do not belong in instruction files
+   read every session.
+7. **Check, don't guess.** `/usage` shows the session's cache hit ratio and
+   the likely cause of the last miss. A creation count that stays high turn
+   after turn means something keeps changing the prefix.
+8. **Longer cache lifetime is a choice, not a default.** Subagents get a
+   five-minute cache even on a subscription. `subagentPromptCacheTtl: "1h"`
+   (or `promptCacheTtl` for the main conversation on an API key) keeps
+   caches warm through longer gaps, but one-hour cache writes cost more, so
+   set it only for work that idles past five minutes between turns.
+
+Unverified tools that claim to route agent decisions outside the prompt are
+not adopted on this basis; any such tool goes through §1.5 (evidence) and
+the supply-chain checks of the repository it would run in.
