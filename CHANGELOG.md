@@ -7,6 +7,25 @@ All notable changes to Standards are recorded here.
 
 ## Unreleased
 
+## 0.0.3 - Unreleased
+
+### Changed
+
+- `AGENTS.md`, `GEMINI.md`, `PR-TEMPLATE.md` and `REPO-STANDARD.md` catch up
+  with the workspace. They had been edited in `~/Code` and in the dotfiles
+  copy since October (the zero-open rule, GitHub Pages by Actions, the latest
+  ssg, the release-title field), so this repository, the canonical source,
+  was the oldest copy. `AGENTS.md` section 8 also names the audit tool's
+  real path, `Private/Python/code-portfolio-compliance`.
+
+### Fixed
+
+- `sync.py --push` no longer overwrites a file edited in place. The post-merge
+  hook pushed this repository's October files over newer copies in `~/Code`
+  and both dotfiles copies. A target is now overwritten only when it matches
+  the source or holds a version this repository once committed; any other is
+  kept and reported, and `--push --force` overwrites it on purpose.
+
 ## 0.0.2 - 2026-10-11
 
 ### Added
