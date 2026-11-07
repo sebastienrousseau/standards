@@ -16,7 +16,7 @@ All notable changes to Standards are recorded here.
   copy since October (the zero-open rule, GitHub Pages by Actions, the latest
   ssg, the release-title field), so this repository, the canonical source,
   was the oldest copy. `AGENTS.md` section 8 also names the audit tool's
-  real path, `Private/Python/code-portfolio-compliance`.
+  real path, `Public/Python/code-portfolio-compliance`.
 
 ### Fixed
 

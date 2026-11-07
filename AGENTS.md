@@ -535,7 +535,7 @@ use” and keep commands runnable by copy and paste.
 ## 8. Portfolio Rollout and Enforcement
 
 1. **Audit:** Run
-   `Private/Python/code-portfolio-compliance/tools/audit_compliance.py` across
+   `Public/Python/code-portfolio-compliance/tools/audit_compliance.py` across
    repository roots and generate the Markdown, CSV, and JSON reports. Generated
    reports MUST NOT be hand-edited.
 2. **Template:** Centralize reusable CI workflows and update consumers by pinned
