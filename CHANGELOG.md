@@ -20,6 +20,11 @@ All notable changes to Standards are recorded here.
 
 ### Fixed
 
+- `README-TEMPLATE.md`'s Build badge takes the new `{{REPO_SLUG}}`
+  (`owner/repo`). It used `{{REPO_DOMAIN_AND_PATH}}`, which the Scorecard
+  badge needs as `github.com/owner/repo`, so a README filled from the
+  template asked shields for `workflow/status/github.com/owner/repo/ci.yml`
+  and showed "repo or workflow not found" (pain001-mockbank did).
 - `sync.py --push` no longer overwrites a file edited in place. The post-merge
   hook pushed this repository's October files over newer copies in `~/Code`
   and both dotfiles copies. A target is now overwritten only when it matches
