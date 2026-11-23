@@ -191,6 +191,12 @@ starting the requested work.
   choosing individual checkers by hand; the gate can grow without the agent's
   list going stale. Stage new files first when a check reads `git ls-files`,
   or it will not see them.
+- **Run the gates CI does not.** Where a repository has checks too slow
+  or too costly for CI, run them too: `make mutation` (mutation testing,
+  efficacy held at its threshold; a timed-out mutant is rerun with a
+  longer timeout, not counted as killed) and `make corpus-live` (live
+  recall against a real backend, which every recorded-output test misses).
+  If one cannot run (no backend, no credentials), say so in the report.
 - **A change must not add warnings.** A new compiler, linter or type-checker
   warning is a failure, not a note.
 - **Observe and Report**:
@@ -256,6 +262,24 @@ starting the requested work.
   that version, because an untagged section is not a release. This is the one
   exception to Initial Version above. Merge Authority (§4) is unchanged: this
   authorises preparing the branches and PRs, not merging them.
+- **Family Publication Completion**: Publishing one member does not publish
+  the ecosystem. Before declaring a coordinated release complete, inventory
+  every ecosystem repository and verify each required publication live:
+  registry artifacts or deployed images, signed tags, release titles and
+  release notes. For pain001, check the core, MCP, LSP, both loaders,
+  mockbank, plugin template, native extension and website explicitly; the
+  PyPI-only suite checker is not a complete ecosystem inventory. State any
+  separately versioned members and their policy rather than silently
+  excluding them. A maintainer decides whether they join lockstep; never
+  infer permission to jump a published version. Repair missing publications
+  within the authorized release and report any unresolved member by name.
+  A prepared branch, merged PR or bumped manifest is not a publication.
+  The pain001 lockstep inventory is nine repositories: pain001,
+  pain001-mcp, pain001-lsp, pain001-loader-mt101, pain001-loader-xlsx,
+  pain001-mockbank, pain001-plugin-template, pain001-fast and
+  pain001.github.io (pain001.com). The maintainer authorized the scaffold,
+  native extension and website to join the suite at 0.0.82; preserve their
+  older published tags and advance subsequent releases together by one.
 - **Release Consistency**: Before publishing, verify every version-bearing
   source, nested package manifest, lockfile root package, generated packaging
   manifest, README install example, CI/action reference, and pre-commit revision.
