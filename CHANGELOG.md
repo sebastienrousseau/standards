@@ -25,6 +25,12 @@ All notable changes to Standards are recorded here.
   and both dotfiles copies. A target is now overwritten only when it matches
   the source or holds a version this repository once committed; any other is
   kept and reported, and `--push --force` overwrites it on purpose.
+- `sync.py --push` and `--pull` leave a target that links to the source
+  alone and report it `[LINKED]`. Copying a file onto itself failed with
+  `[ERROR] ... are the same file` for every file, so `~/Code` could not
+  link its standards to this repository. The per-file step of `--push`
+  moves to `push_file`, which brings `push_sync` under the complexity
+  ceilings (cyclomatic 10 to 6, cognitive 17 to 7).
 
 ## 0.0.2 - 2026-10-11
 
