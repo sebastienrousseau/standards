@@ -3,7 +3,7 @@
 
 [project]
 name = "standards-sync"
-version = "0.0.4"
+version = "0.0.5"
 description = "Keep the canonical code standards in sync with the workspace root and dotfiles copies."
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
@@ -112,6 +112,8 @@ exclude_also = ['if __name__ == "__main__":']
 
 [tool.codespell]
 skip = "./.git,./.venv,./uv.lock,./site,./build,./dist,*.gif"
+# in-toto's file extension, .intoto.jsonl, is not a misspelling of "into".
+ignore-words-list = "intoto"
 
 [tool.uv]
 default-groups = ["dev"]

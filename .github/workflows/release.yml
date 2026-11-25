@@ -83,12 +83,21 @@ jobs:
           cp build/man/standards-sync.1 build/standards-sync.cdx.json release/
           tar --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --numeric-owner \
             -czf "release/standards-sync-completions-$version.tar.gz" -C build completions
-          (cd release && shasum -a 256 -- * > ../SHA256SUMS) && mv SHA256SUMS release/
-          cat release/SHA256SUMS
       - name: Attest build provenance (SLSA)
+        id: attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: release/*
+      - name: Attach the provenance bundle and sum every asset
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          cp "$BUNDLE" "release/standards-sync-${TAG#v}.intoto.jsonl"
+          (cd release && shasum -a 256 -- * > ../SHA256SUMS) && mv SHA256SUMS release/
+          cat release/SHA256SUMS
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+      - name: Sign SHA256SUMS (Sigstore, keyless)
+        run: cosign sign-blob --yes --bundle release/SHA256SUMS.sigstore.json release/SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release
