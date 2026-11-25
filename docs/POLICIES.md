@@ -64,12 +64,14 @@ them is a breaking change and is called out in the CHANGELOG:
 - **Options**: `--check`, `-q`/`--quiet`, `--push`, `--force`, `--pull`
   and `--install-hooks`, with no option meaning `--push`. Pinned by
   `tests/test_sync.py::test_cli_options_are_stable`.
-- **Exit status**: 0 when in sync or done, 1 on drift, a kept edit, a
-  file or hook that could not be written, an existing hook kept, or no
-  source.
+- **Exit status**: 0 when in sync or done, 1 on drift, a kept edit, an
+  earlier published version not pulled, a file or hook that could not be
+  written, an existing hook kept, no source, or a `STANDARDS_REPO` that
+  does not hold the standards.
 - **Status words**: `[OK]`, `[MISSING]`, `[DRIFTED]`, `[COPIED]`, `[KEPT]`,
-  `[LINKED]`, `[PULLED]` and `[ERROR]`, which scripts may match.
-- **Environment**: `STANDARDS_REPO` and `STANDARDS_TARGETS`.
+  `[LINKED]`, `[PULLED]`, `[STALE]` and `[ERROR]`, which scripts may match.
+- **Environment**: `STANDARDS_REPO` (when set, the only source) and
+  `STANDARDS_TARGETS`.
 - **Output stability**: push never overwrites a file edited in place
   without `--force`. A change that would make it do so is breaking even
   if no option changes.

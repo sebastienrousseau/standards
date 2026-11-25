@@ -16,14 +16,16 @@ written, apart from the git hooks that `--install-hooks` installs.
 
 ## Finding the source
 
+When `$STANDARDS_REPO` is set, it is the source, and the only one: if it
+does not hold `AGENTS.md`, every command exits 1 and says so, rather than
+using another source the user did not name. Otherwise
 `find_canonical_source` returns the first directory holding a readable
 `AGENTS.md`, trying in order:
 
-1. `$STANDARDS_REPO`.
-2. The directories above the running script, each first as
+1. The directories above the running script, each first as
    `<dir>/defaults/Code` (a dotfiles checkout) and then as `<dir>` (this
    repository).
-3. `~/Code/Public/Other/standards`, `~/Code`, `~/.dotfiles/defaults/Code`
+2. `~/Code/Public/Other/standards`, `~/Code`, `~/.dotfiles/defaults/Code`
    and `~/.local/share/chezmoi/defaults/Code`.
 
 ## Finding the targets
@@ -58,7 +60,15 @@ exceptions:
 `git hash-object` does, and the fuzz suite checks the two agree.
 
 **Pull** (`--pull`) copies the five files from `~/Code` into the source,
-then pushes to every target except `~/Code`.
+then pushes to every target except `~/Code`. A file in `~/Code` that holds
+an earlier version this repository committed was left behind, not edited:
+it is `[STALE]` and not pulled, since pulling it would roll the source and
+every mirror back, and the pull exits 1. `--pull --force` adopts it.
+
+Every write, push or pull, goes to a temporary file beside the real one
+and replaces it in one rename (`atomic_copy`), so an interrupted run never
+leaves a half-written standard. A link to another file is written through,
+and a read-only file is refused, as an in-place write would be.
 
 ## Git hooks
 

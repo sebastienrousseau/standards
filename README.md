@@ -184,7 +184,7 @@ small text files, and no performance claim is made.
 
 | Variable | Effect |
 | :--- | :--- |
-| `STANDARDS_REPO` | The source directory, tried before any other |
+| `STANDARDS_REPO` | The source directory; when set, the only one, and an error if it does not hold the standards |
 | `STANDARDS_TARGETS` | Target directories, separated by `:`, replacing the defaults |
 
 Without them, the source is found from the script's location or under
