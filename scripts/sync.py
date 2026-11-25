@@ -197,13 +197,19 @@ def _check_target(src_dir: Path, label: str, target_dir: Path, quiet: bool) -> i
     return drift
 
 
+def _colour() -> bool:
+    """Whether to colour output: on a terminal, unless NO_COLOR is set (no-color.org)."""
+    return sys.stdout.isatty() and "NO_COLOR" not in os.environ
+
+
 def _report_drift(drift_count: int, quiet: bool) -> int:
     """Print the outcome of a check and return its exit status."""
     if drift_count == 0:
         _say(quiet, "All standards are synchronized.")
         return 0
     if quiet:
-        print(f"\033[0;33m⚠️  [standards] Drift detected across ~/Code or dotfiles ({drift_count} discrepancy).\033[0m")
+        warning = f"⚠️  [standards] Drift detected across ~/Code or dotfiles ({drift_count} discrepancy)."
+        print(f"\033[0;33m{warning}\033[0m" if _colour() else warning)
         print("   Run 'standards-sync' to auto-heal or 'standards-sync --check' to inspect diffs.")
     else:
         print(f"Synchronization check failed with {drift_count} drift(s).")
@@ -270,26 +276,45 @@ def is_same_file(a: Path, b: Path) -> bool:
         return False
 
 
-def push_file(src_dir: Path, fname: str, dst: Path, force: bool) -> bool:
-    """Push one standard file to `dst`; return True when an edit was kept."""
+def _push_one(src_dir: Path, fname: str, dst: Path, force: bool) -> str:
+    """Push one standard file to `dst`: "copied", "linked", "kept", "error" or "absent"."""
     src = src_dir / fname
     try:
         if not src.is_file():
-            return False
+            return "absent"
         if is_same_file(src, dst):
             print(f"  [LINKED]  {fname}")
-            return False
+            return "linked"
         if not force and not safe_to_overwrite(src_dir, src, dst):
             print(
                 f"  [KEPT] {fname}: edited here, not a published version; "
                 "--pull to adopt it, --push --force to overwrite"
             )
-            return True
+            return "kept"
         shutil.copy2(src, dst)
         print(f"  [COPIED] {fname}")
     except (OSError, PermissionError) as e:
         print(f"  [ERROR] {fname}: {e}")
-    return False
+        return "error"
+    return "copied"
+
+
+def push_file(src_dir: Path, fname: str, dst: Path, force: bool) -> bool:
+    """Push one standard file to `dst`; return True when an edit was kept."""
+    return _push_one(src_dir, fname, dst, force) == "kept"
+
+
+def _push_target(src_dir: Path, label: str, target_dir: Path, force: bool) -> list[str]:
+    """Push every standard file into one target; return each file's outcome."""
+    try:
+        target_dir.mkdir(parents=True, exist_ok=True)
+    except (OSError, PermissionError) as e:
+        print(f"Cannot update {label} ({target_dir}): {e}")
+        return ["error"] * len(STANDARD_FILES)
+    print(f"Updating: {label} ({target_dir})")
+    outcomes = [_push_one(src_dir, fname, target_dir / fname, force) for fname in STANDARD_FILES]
+    print()
+    return outcomes
 
 
 def push_sync(src_dir: Path | None, targets: list[tuple[str, Path]], force: bool = False) -> int:
@@ -302,22 +327,14 @@ def push_sync(src_dir: Path | None, targets: list[tuple[str, Path]], force: bool
     if src_dir is None:
         print("Cannot push: no standards source directory located.")
         return 1
-    kept = 0
-
     print(f"Synchronizing {len(STANDARD_FILES)} standard files to {len(targets)} targets...\n")
-    for label, target_dir in targets:
-        try:
-            target_dir.mkdir(parents=True, exist_ok=True)
-        except (OSError, PermissionError) as e:
-            print(f"Cannot update {label} ({target_dir}): {e}")
-            continue
-
-        print(f"Updating: {label} ({target_dir})")
-        for fname in STANDARD_FILES:
-            kept += push_file(src_dir, fname, target_dir / fname, force)
-        print()
+    outcomes = [o for label, target_dir in targets for o in _push_target(src_dir, label, target_dir, force)]
+    kept, errors = outcomes.count("kept"), outcomes.count("error")
     if kept:
         print(f"Push synchronization kept {kept} file(s) edited in place; nothing of them was overwritten.")
+    if errors:
+        print(f"Push synchronization could not write {errors} file(s); see [ERROR] and Cannot update above.")
+    if kept or errors:
         return 1
     print("Push synchronization complete.")
     return 0
@@ -366,9 +383,14 @@ def install_hooks(src_dir: Path | None) -> int:
 
     hook_content = "#!/bin/sh\n# Auto-sync standards to workspace root and dotfiles\nstandards-sync --push\n"
 
+    status = 0
     for hook_name in ("post-commit", "post-merge"):
         hook_path = hooks_dir / hook_name
         try:
+            if hook_path.is_file() and hook_path.read_text(encoding="utf-8") != hook_content:
+                print(f"Kept existing hook {hook_path}: add 'standards-sync --push' to it, or remove it and rerun")
+                status = 1
+                continue
             hook_path.write_text(hook_content, encoding="utf-8")
             hook_path.chmod(0o755)
             print(f"Installed hook: {hook_path}")
@@ -376,7 +398,7 @@ def install_hooks(src_dir: Path | None) -> int:
             print(f"Cannot install hook {hook_name}: {e}")
             return 1
 
-    return 0
+    return status
 
 
 EPILOG = """\
@@ -387,8 +409,8 @@ environment:
 
 exit status:
   0  in sync (or, for --check, no source found), or every file pushed or pulled
-  1  drift found, a file edited in place was kept, or a push, pull or hook
-     install could not run
+  1  drift found, a file edited in place was kept, a file or hook could not
+     be written, an existing hook was kept, or there was no source
 """
 
 

@@ -135,6 +135,17 @@ def test_check_sync_quiet_drift_warns_once(source: Path, tmp_path: Path, capsys:
     assert "Checking" not in out
 
 
+def test_quiet_drift_warning_is_plain_unless_a_terminal(source: Path, tmp_path: Path, monkeypatch, capsys) -> None:
+    sync.check_sync(source, [("M", tmp_path / "missing")], quiet=True)
+    assert "\033[" not in capsys.readouterr().out
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+    sync.check_sync(source, [("M", tmp_path / "missing")], quiet=True)
+    assert "\033[0;33m" in capsys.readouterr().out
+    monkeypatch.setenv("NO_COLOR", "1")
+    sync.check_sync(source, [("M", tmp_path / "missing")], quiet=True)
+    assert "\033[" not in capsys.readouterr().out
+
+
 def test_check_sync_quiet_in_sync_prints_nothing(source: Path, tmp_path: Path, capsys) -> None:
     target = tmp_path / "t"
     write_standards(target)
@@ -197,8 +208,10 @@ def test_push_leaves_linked_targets_alone(source: Path, tmp_path: Path, capsys) 
 def test_push_reports_an_unwritable_target(source: Path, tmp_path: Path, capsys) -> None:
     blocker = tmp_path / "file"
     blocker.write_text("not a directory")
-    assert sync.push_sync(source, [("T", blocker / "Code")]) == 0
-    assert "Cannot update T" in capsys.readouterr().out
+    assert sync.push_sync(source, [("T", blocker / "Code")]) == 1
+    out = capsys.readouterr().out
+    assert "Cannot update T" in out
+    assert "complete" not in out
 
 
 def test_push_reports_a_failed_copy(source: Path, tmp_path: Path, capsys) -> None:
@@ -206,10 +219,13 @@ def test_push_reports_a_failed_copy(source: Path, tmp_path: Path, capsys) -> Non
     target.mkdir()
     target.chmod(0o500)
     try:
-        sync.push_sync(source, [("T", target)], force=True)
+        status = sync.push_sync(source, [("T", target)], force=True)
     finally:
         target.chmod(0o700)
-    assert "[ERROR] AGENTS.md" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "[ERROR] AGENTS.md" in out
+    assert status == 1
+    assert f"could not write {len(sync.STANDARD_FILES)} file(s)" in out
 
 
 def test_push_skips_files_missing_from_source(source: Path, tmp_path: Path) -> None:
@@ -279,6 +295,19 @@ def test_install_hooks(source: Path) -> None:
         hook = source / ".git" / "hooks" / name
         assert hook.read_text().endswith("standards-sync --push\n")
         assert os.access(hook, os.X_OK)
+
+
+def test_install_hooks_keeps_a_hook_it_did_not_write(source: Path, capsys) -> None:
+    own = source / ".git" / "hooks" / "post-commit"
+    own.parent.mkdir(parents=True, exist_ok=True)
+    own.write_text("#!/bin/sh\necho my own hook\n")
+    assert sync.install_hooks(source) == 1
+    assert own.read_text() == "#!/bin/sh\necho my own hook\n"
+    assert "Kept existing hook" in capsys.readouterr().out
+    assert sync.install_hooks(source) == 1
+    own.unlink()
+    assert sync.install_hooks(source) == 0
+    assert sync.install_hooks(source) == 0
 
 
 def test_install_hooks_needs_a_git_checkout(tmp_path: Path, capsys) -> None:

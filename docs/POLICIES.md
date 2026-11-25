@@ -64,8 +64,9 @@ them is a breaking change and is called out in the CHANGELOG:
 - **Options**: `--check`, `-q`/`--quiet`, `--push`, `--force`, `--pull`
   and `--install-hooks`, with no option meaning `--push`. Pinned by
   `tests/test_sync.py::test_cli_options_are_stable`.
-- **Exit status**: 0 when in sync or done, 1 on drift, a kept edit, or a
-  push, pull or hook install that could not run.
+- **Exit status**: 0 when in sync or done, 1 on drift, a kept edit, a
+  file or hook that could not be written, an existing hook kept, or no
+  source.
 - **Status words**: `[OK]`, `[MISSING]`, `[DRIFTED]`, `[COPIED]`, `[KEPT]`,
   `[LINKED]`, `[PULLED]` and `[ERROR]`, which scripts may match.
 - **Environment**: `STANDARDS_REPO` and `STANDARDS_TARGETS`.
