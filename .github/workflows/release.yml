@@ -5,6 +5,8 @@
 # (AGENTS.md section 3). Run it by hand with dry-run to see the assets and
 # notes without publishing. A tag whose tree has no .github/releases/<tag>.md
 # predates this workflow and is published by hand; the workflow skips it.
+# The wheel and sdist then go to PyPI by trusted publishing (OIDC, no
+# token), after the GitHub release, so a PyPI failure can be rerun alone.
 
 name: Release
 
@@ -176,3 +178,24 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: gh release edit "$TAG" --repo "$REPO" --title "standards ${TAG#v}" --notes-file notes/notes.md
+
+  pypi:
+    needs: publish
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/standards-sync/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: release
+      - name: Keep the wheel and sdist only
+        run: |
+          mkdir dist
+          cp release/standards_sync-*.whl release/standards_sync-*.tar.gz dist/
+          ls dist
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3

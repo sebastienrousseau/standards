@@ -7,6 +7,16 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.8] - 2026-11-25
+
+### Added
+
+- The release workflow uploads the wheel and sdist to PyPI as
+  `standards-sync`, by trusted publishing (OpenID Connect, no stored
+  token), after the GitHub release is published.
+- CI tests on Python 3.16, the next release, while it is a pre-release.
+  The job warns without blocking a merge.
+
 ## [0.0.7] - 2026-11-25
 
 ### Added
@@ -183,6 +193,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.8]: https://github.com/sebastienrousseau/standards/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/sebastienrousseau/standards/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/sebastienrousseau/standards/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/sebastienrousseau/standards/compare/v0.0.4...v0.0.5

@@ -49,7 +49,14 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.10", "3.15"]
+        # The next Python, pre-release: an early warning that does not
+        # block a merge, since an alpha can break for reasons not ours.
+        include:
+          - os: ubuntu-latest
+            python-version: "3.16"
+            prerelease: true
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.prerelease == true }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

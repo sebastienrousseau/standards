@@ -62,5 +62,12 @@ README must follow: `make lint` fails until it does.
 
 Releases are cut from `main` by pushing a signed tag; see
 [CONTRIBUTING.md](CONTRIBUTING.md). The release workflow checks the tag,
-builds and attests the assets, and publishes the release. Run it with
+builds and attests the assets, publishes the release, then uploads the
+wheel and sdist to [PyPI](https://pypi.org/project/standards-sync/) by
+trusted publishing (no token is stored). Run it with
 `workflow_dispatch` and `dry-run` to see the notes and assets first.
+
+CI also tests on the next Python while it is a pre-release (3.16 now).
+That job warns without blocking a merge: an alpha can break for reasons
+outside this project. It moves into the required matrix at the stable
+release.
