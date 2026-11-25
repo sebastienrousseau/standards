@@ -48,6 +48,7 @@ dev = [
   "ruff>=0.8",
   "shtab>=1.7",
   "zensical>=0.1.3; python_version >= '3.11'",
+  "mkdocstrings[python]>=0.30; python_version >= '3.11'",
 ]
 
 [build-system]
@@ -79,15 +80,15 @@ line-length = 120
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "BLE", "S", "UP", "SIM", "C90", "PL", "RUF"]
+select = ["E", "F", "W", "I", "B", "BLE", "S", "UP", "SIM", "C90", "PL", "RUF", "D1"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 # Tests assert, compare literal values and run git to build fixture repositories.
-"tests/**" = ["S101", "PLR2004", "S603"]
-"fuzz/**" = ["S101", "PLR2004", "S603"]
+"tests/**" = ["S101", "PLR2004", "S603", "D1"]
+"fuzz/**" = ["S101", "PLR2004", "S603", "D1"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "fuzz"]

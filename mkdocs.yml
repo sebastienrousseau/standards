@@ -47,7 +47,8 @@ nav:
   - standards-sync:
       - Architecture: ARCHITECTURE.md
       - Policies and stability: POLICIES.md
-      - Migrating: MIGRATING.md
+      - API reference: api.md
+      - Migrating: MIGRATION.md
       - Packaging: packaging.md
       - Verifying releases: VERIFYING.md
   - Decisions:
@@ -57,3 +58,9 @@ nav:
       - adr/0003-keep-edits-made-in-place.md
       - adr/0004-python-3.9-floor.md
       - adr/0005-zensical-for-the-manual.md
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [scripts]

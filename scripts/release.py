@@ -45,6 +45,7 @@ def run(*argv: str) -> str:
 
 
 def version_of(tag: str) -> str:
+    """The version in a release tag, `v0.0.3` -> `0.0.3`; raise on any other shape."""
     match = TAG.match(tag)
     if not match:
         raise PreflightError(f"{tag}: a release tag is v<major>.<minor>.<patch>")

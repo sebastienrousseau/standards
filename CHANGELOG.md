@@ -32,7 +32,9 @@ All notable changes to Standards are recorded here, in the form of
   check, dependency review, and a `validate` job that requires them all.
 - A manual built with Zensical and deployed to GitHub Pages by Actions,
   with architecture, policies, migration, packaging and verification
-  pages and five decision records.
+  pages, five decision records, and an API reference generated from the
+  docstrings by mkdocstrings; ruff's D1 rules require a docstring on
+  every public function.
 - A release workflow: blocking preflight (signed annotated tag, message,
   on `main`, versions), assets with SHA-256 sums, a CycloneDX SBOM and
   SLSA provenance, notes in the section order of `AGENTS.md` section 3,
