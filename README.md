@@ -229,6 +229,9 @@ audited on every push, and releases carry checksums, an SBOM and build
 provenance. CodeQL, secret scanning and the OpenSSF Scorecard run on
 `main`.
 
+The project holds the
+[OpenSSF Best Practices passing badge](https://www.bestpractices.dev/projects/17104).
+
 Report vulnerabilities according to [`SECURITY.md`](SECURITY.md).
 
 ---
