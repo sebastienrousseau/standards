@@ -46,6 +46,15 @@ and SHA-256 into `build/pkg/`. Nothing generated is committed.
 The rendered recipes point at the release's own tarball, so a packager
 can take them from the release page as they are.
 
+Published from these recipes, by the maintainer after each release:
+
+- **Homebrew**: the [sebastienrousseau/tap](https://github.com/sebastienrousseau/homebrew-tap)
+  tap, `brew install sebastienrousseau/tap/standards-sync`.
+- **AUR**: [standards-sync](https://aur.archlinux.org/packages/standards-sync).
+
+A distribution that wants to carry the package can take the recipe
+from the release page; nixpkgs is the next submission.
+
 ## What is not provided
 
 There is no container image: the command edits files in the user's home
