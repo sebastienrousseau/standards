@@ -7,6 +7,29 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.15] - 2026-11-25
+
+### Added
+
+- `DEPRECATIONS.md` and a dated deprecation policy (`docs/POLICIES.md`):
+  a deprecated option or behaviour is listed with its replacement and a
+  removal date at least 90 days, and one release, after it was
+  deprecated. The two option combinations that warn since 0.0.14 become
+  errors no earlier than 2027-02-23.
+- `AGENTS.md` section 10 gains two rules: record in a repository's
+  `AGENTS.md` what sessions keep rediscovering, and session hooks fail
+  open, announce themselves and can be undone.
+- ADR 0006: `standards-sync` becomes a package, with a single-file zipapp
+  build, in the first change that needs to add to `sync.py`, which
+  reached the 500-line file ceiling in 0.0.14.
+
+### Changed
+
+- The Nix expression builds from the PyPI sdist, as nixpkgs expects
+  (hatchling, the manpage and completions generated in the build, the
+  sync tests run by `pytestCheckHook`), instead of unpacking the release
+  tarball. CI builds it the same way.
+
 ## [0.0.14] - 2026-11-25
 
 ### Changed
@@ -277,6 +300,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.15]: https://github.com/sebastienrousseau/standards/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/sebastienrousseau/standards/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/sebastienrousseau/standards/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/sebastienrousseau/standards/compare/v0.0.11...v0.0.12
