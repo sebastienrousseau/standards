@@ -7,6 +7,24 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.5] - 2026-11-25
+
+### Added
+
+- Every release carries its signature and provenance as assets, where the
+  OpenSSF Scorecard's Signed-Releases check looks for them: the workflow
+  attaches the build provenance bundle as
+  `standards-sync-<version>.intoto.jsonl` and signs `SHA256SUMS` with
+  Sigstore (`SHA256SUMS.sigstore.json`). Releases 0.0.1 to 0.0.4 gained
+  `SHA256SUMS.sig`, signed with the maintainer's SSH key, and 0.0.3 and
+  0.0.4 their original provenance bundles. `docs/VERIFYING.md` shows how
+  to check each.
+
+### Changed
+
+- `KEYS.asc` allows its keys in the `file` namespace as well as `git`,
+  so `ssh-keygen -Y verify` accepts the release checksum signatures.
+
 ## [0.0.4] - 2026-11-25
 
 ### Added
@@ -137,6 +155,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.5]: https://github.com/sebastienrousseau/standards/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/sebastienrousseau/standards/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/sebastienrousseau/standards/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/sebastienrousseau/standards/compare/v0.0.1...v0.0.2
