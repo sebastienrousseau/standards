@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# The hooks call the same make targets as CI, so the versions come from
+# uv.lock and the Makefile, not from a second list here.
+repos:
+  - repo: local
+    hooks:
+      - id: lint
+        name: make lint
+        entry: make lint
+        language: system
+        pass_filenames: false
+      - id: test
+        name: make test
+        entry: make test
+        language: system
+        pass_filenames: false
+        files: \.py$

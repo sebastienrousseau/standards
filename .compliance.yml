@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# AGENTS.md section 5.1. The repository every other one takes its rules from.
+tier: L3
+criticality: standard
+owner: sebastienrousseau

@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+config:
+  default: true
+  # Prose is wrapped by the editor and tables cannot wrap; the standards
+  # have always used long lines, and a hard limit would churn every file.
+  MD013: false
+  # README-TEMPLATE.md fixes an HTML header (centred logo, title, badges).
+  MD033:
+    allowed_elements: [a, br, h1, img, p]
+  # Line 1 of every file is its SPDX licence comment, by the README
+  # standard, so the first line is never the heading.
+  MD041: false
+  # README-TEMPLATE.md groups its Contents under bold labels, so every
+  # README that follows it has them.
+  MD036: false
+  # A changelog repeats "Added", "Changed" and "Fixed" once per release.
+  MD024:
+    siblings_only: true
+globs:
+  - "**/*.md"
+ignores:
+  - ".venv/**"
+  - "build/**"
+  - "site/**"
+  - "node_modules/**"

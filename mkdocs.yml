@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+site_name: standards
+site_description: The code standards every repository by Sebastien Rousseau follows, and the tool that keeps them in sync.
+site_url: https://sebastienrousseau.com/standards/
+repo_url: https://github.com/sebastienrousseau/standards
+edit_uri: blob/main/docs/
+copyright: '&copy; 2026 <a href="https://sebastienrousseau.com/" rel="author">Sebastien Rousseau</a>'
+strict: true
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: { icon: material/weather-sunny, name: Light mode }
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Home: index.md
+  - The standards:
+      - AGENTS.md: AGENTS.md
+      - GEMINI.md: GEMINI.md
+      - Repository gold standard: REPO-STANDARD.md
+      - README template: README-TEMPLATE.md
+      - PR template: PR-TEMPLATE.md
+  - standards-sync:
+      - Architecture: ARCHITECTURE.md
+      - Policies and stability: POLICIES.md
+      - API reference: api.md
+      - Migrating: MIGRATION.md
+      - Packaging: packaging.md
+      - Verifying releases: VERIFYING.md
+  - Decisions:
+      - adr/index.md
+      - adr/0001-record-architecture-decisions.md
+      - adr/0002-one-canonical-source.md
+      - adr/0003-keep-edits-made-in-place.md
+      - adr/0004-python-3.9-floor.md
+      - adr/0005-zensical-for-the-manual.md
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [scripts]

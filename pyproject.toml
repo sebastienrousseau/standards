@@ -1,0 +1,121 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
+[project]
+name = "standards-sync"
+version = "0.0.3"
+description = "Keep the canonical code standards in sync with the workspace root and dotfiles copies."
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+license-files = ["LICENSE-APACHE", "LICENSE-MIT"]
+authors = [{ name = "Sebastien Rousseau", email = "sebastian.rousseau@gmail.com" }]
+# The floor is the python3 that macOS ships (/usr/bin/python3 is 3.9): the
+# git hooks run standards-sync on whatever python3 is first on PATH.
+# docs/POLICIES.md records when it may rise.
+requires-python = ">=3.9"
+dependencies = []
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.urls]
+Homepage = "https://github.com/sebastienrousseau/standards"
+Documentation = "https://sebastienrousseau.com/standards/"
+Changelog = "https://github.com/sebastienrousseau/standards/blob/main/CHANGELOG.md"
+Issues = "https://github.com/sebastienrousseau/standards/issues"
+
+[project.scripts]
+standards-sync = "standards_sync:main"
+
+[dependency-groups]
+dev = [
+  "argparse-manpage>=4.7",
+  "codespell>=2.4",
+  "complexipy>=4.0",
+  "coverage[toml]>=7.6",
+  "griffe>=1.5",
+  "hypothesis>=6.120",
+  # pip-audit pulls in filelock, and no filelock release before 4.2.1
+  # (Python 3.11+) is free of GitHub advisories; the audit runs on 3.13.
+  "pip-audit>=2.7; python_version >= '3.11'",
+  # No pytest release free of GHSA-6w46-j5rx-g56g (fixed in 9.0.3) supports
+  # Python 3.9; the floor is checked there by tests/smoke.py instead.
+  "pytest>=9.0.3; python_version >= '3.10'",
+  "radon>=6.0",
+  "reuse[charset-normalizer]>=5.0",
+  "ruff>=0.8",
+  "shtab>=1.7",
+  "zensical>=0.1.3; python_version >= '3.11'",
+  "mkdocstrings[python]>=0.30; python_version >= '3.11'",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+# scripts/sync.py stays the one source file: the dotfiles vendor it byte for
+# byte as ~/.local/bin/standards-sync. The wheel installs it as a module.
+[tool.hatch.build.targets.wheel]
+bypass-selection = true
+
+[tool.hatch.build.targets.wheel.force-include]
+"scripts/sync.py" = "standards_sync.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "scripts/",
+  "tests/",
+  "fuzz/",
+  "LICENSE-APACHE",
+  "LICENSE-MIT",
+  "README.md",
+  "CHANGELOG.md",
+]
+exclude = [".complexipy_cache"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "BLE", "S", "UP", "SIM", "C90", "PL", "RUF", "D1"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert, compare literal values and run git to build fixture repositories.
+"tests/**" = ["S101", "PLR2004", "S603", "D1"]
+"fuzz/**" = ["S101", "PLR2004", "S603", "D1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "fuzz"]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+source = ["scripts"]
+branch = true
+
+[tool.coverage.report]
+# 95 percent, branches included: sync.py writes into the workspace and the
+# dotfiles, so every overwrite decision is tested, and so is every arm that
+# tolerates an unreadable path. The margin is for platform-specific arms.
+fail_under = 95
+show_missing = true
+exclude_also = ['if __name__ == "__main__":']
+
+[tool.codespell]
+skip = "./.git,./.venv,./uv.lock,./site,./build,./dist,*.gif"
+
+[tool.uv]
+default-groups = ["dev"]
+# Advisories: filelock up to 4.2.0 (GHSA-v4x8-3wr5-3wq8 and others,
+# fixed in 4.2.1) and pytest before 9.0.3 (GHSA-6w46-j5rx-g56g). No
+# affected version may resolve, in any environment.
+constraint-dependencies = ["filelock>=4.2.1", "pytest>=9.0.3"]

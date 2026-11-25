@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+version = 1
+
+# Files whose format has no room for a comment, or that a tool generates,
+# and the standards themselves: they are copied into every repository and
+# into ~/Code, so they carry no header of their own.
+[[annotations]]
+path = [
+  "AGENTS.md",
+  "GEMINI.md",
+  "PR-TEMPLATE.md",
+  "REPO-STANDARD.md",
+  ".github/pull_request_template.md",
+  "LICENSE-APACHE",
+  "LICENSE-MIT",
+  "uv.lock",
+  "complexity-baseline.json",
+  ".devcontainer/devcontainer.json",
+  ".github/demo.gif",
+  ".github/logo.svg",
+  "docs/AGENTS.md",
+  "docs/GEMINI.md",
+  "docs/REPO-STANDARD.md",
+]
+SPDX-FileCopyrightText = "2026 Sebastien Rousseau"
+SPDX-License-Identifier = "Apache-2.0 OR MIT"
+
+# The template's own SPDX line is a placeholder that each README fills in.
+[[annotations]]
+path = "README-TEMPLATE.md"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Sebastien Rousseau"
+SPDX-License-Identifier = "Apache-2.0 OR MIT"

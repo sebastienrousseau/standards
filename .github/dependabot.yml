@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Updates land on the active feat/v<next-version> branch (AGENTS.md section 3);
+# a Dependabot PR is cherry-picked there and closed.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dev-tools:
+        patterns: ["*"]
+  - package-ecosystem: devcontainers
+    directory: /
+    schedule:
+      interval: weekly
