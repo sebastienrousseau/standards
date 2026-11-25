@@ -1,4 +1,6 @@
 class StandardsSync < Formula
+  include Language::Python::Shebang
+
   desc "Keep the code standards in sync without losing edits"
   homepage "https://github.com/sebastienrousseau/standards"
   url "@URL@"

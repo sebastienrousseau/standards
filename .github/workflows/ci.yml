@@ -278,7 +278,7 @@ jobs:
           nix-store --add-fixed sha256 build/pkg/standards-sync-*-unix.tar.gz
           nix-build -E 'with import <nixpkgs> { }; callPackage ./build/pkg/nix/package.nix { }'
           ./result/bin/standards-sync --help
-          test -s result/share/man/man1/standards-sync.1
+          test -s result/share/man/man1/standards-sync.1.gz
 
   devcontainer:
     name: Dev container boots to make test
