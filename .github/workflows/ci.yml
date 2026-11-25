@@ -267,7 +267,7 @@ jobs:
           python-version: "3.13"
       - name: make pkg
         run: make pkg
-      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+      - uses: cachix/install-nix-action@bb0495a1086c46893eee56f32fd192dfe4a15bb9 # v32.0.0
         with:
           # nixos-26.05, pinned by commit
           nix_path: nixpkgs=https://github.com/NixOS/nixpkgs/archive/0dc498bfe49baeb18b0f9891e800b53bb2603193.tar.gz
