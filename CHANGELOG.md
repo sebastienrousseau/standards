@@ -7,6 +7,14 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.9] - 2026-11-25
+
+### Changed
+
+- The README installs `standards-sync` from PyPI, where 0.0.8 is the
+  first release, and its registry badge shows the PyPI version.
+- `docs/VERIFYING.md` shows how to verify a PyPI file's attestation.
+
 ## [0.0.8] - 2026-11-25
 
 ### Added
@@ -193,6 +201,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.9]: https://github.com/sebastienrousseau/standards/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/sebastienrousseau/standards/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/sebastienrousseau/standards/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/sebastienrousseau/standards/compare/v0.0.5...v0.0.6
