@@ -7,6 +7,20 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.13] - 2026-11-25
+
+### Fixed
+
+- `--push` exited 0 and printed "complete" when a file or a whole target
+  could not be written, although 0 means every file was pushed. It now
+  exits 1 and says how many files it could not write.
+- `--check --quiet` wrote colour escape codes into pipes and files, and
+  ignored `NO_COLOR`. The warning is coloured only on a terminal, and
+  never when `NO_COLOR` is set.
+- `--install-hooks` replaced an existing `post-commit` or `post-merge`
+  hook that it had not written. It now keeps such a hook, says so, and
+  exits 1; its own hooks are still rewritten.
+
 ## [0.0.12] - 2026-11-25
 
 ### Added
@@ -239,6 +253,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.13]: https://github.com/sebastienrousseau/standards/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/sebastienrousseau/standards/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/sebastienrousseau/standards/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/sebastienrousseau/standards/compare/v0.0.9...v0.0.10
