@@ -59,6 +59,7 @@ nav:
       - adr/0003-keep-edits-made-in-place.md
       - adr/0004-python-3.9-floor.md
       - adr/0005-zensical-for-the-manual.md
+      - adr/0006-a-package-when-sync-grows.md
 
 plugins:
   - mkdocstrings:
