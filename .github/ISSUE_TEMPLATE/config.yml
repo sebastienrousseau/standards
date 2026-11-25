@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/sebastienrousseau/standards/security/advisories/new
+    about: Report security issues privately, never in a public issue.

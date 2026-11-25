@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+name: standards-sync bug
+description: standards-sync did the wrong thing to a file, or failed.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran, what you expected, and what it did.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: The full output of the command, with `--check` output if it helps.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The release tag or commit of standards, and `python3 --version`.
+    validations:
+      required: true

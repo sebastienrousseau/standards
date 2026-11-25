@@ -1,5 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Sebastien Rousseau
 # SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Every gate in `make check`, plus what needs a clean runner: the OS and
+# Python matrix, the README Quick Start, the staged install, the dev
+# container and the external link check. "validate" is the required check.
 
 name: CI
 
@@ -8,36 +12,169 @@ on:
     branches: ["main", "feat/*"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  lint:
+    name: Lint, format, complexity, docs-lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Validate Master Files Exist
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Install actionlint
         run: |
-          for f in AGENTS.md GEMINI.md PR-TEMPLATE.md README-TEMPLATE.md REPO-STANDARD.md README.md CODE_OF_CONDUCT.md CONTRIBUTING.md SECURITY.md CHANGELOG.md; do
-            if [ ! -f "$f" ]; then
-              echo "Missing required file: $f"
-              exit 1
-            fi
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: make lint (ruff, complexity, check_docs, codespell, REUSE, markdownlint, actionlint)
+        run: make lint
+
+  test:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.15"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Tests with the coverage gate
+        run: make test
+      - name: Fuzz corpus replay and property tests
+        run: make fuzz
+
+  docs:
+    name: Manual (strict build) and link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - name: Build the manual with warnings as errors
+        run: make docs
+      - name: Check every link (lychee)
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: --no-progress --exclude-path build/site/404.html --exclude "^https://github.com/sebastienrousseau/standards/(security/advisories/new|issues/new)" "*.md" "docs/**/*.md" "build/site/**/*.html"
+          fail: true
+
+  api:
+    name: API breakage since the last release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - run: make api
+
+  supply-chain:
+    name: Advisory audit, SBOM, reproducible build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - name: pip-audit over uv.lock
+        run: make audit
+      - name: CycloneDX SBOM
+        run: make sbom
+      - name: Build twice, compare (reproducible)
+        run: make reproducible
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
+        with:
+          fail-on-severity: low
+
+  install:
+    name: Staged install, README Quick Start
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - name: make DESTDIR=stage install
+        run: |
+          make DESTDIR="$RUNNER_TEMP/stage" install
+          for f in bin/standards-sync share/man/man1/standards-sync.1 \
+                   share/bash-completion/completions/standards-sync \
+                   share/zsh/site-functions/_standards-sync \
+                   share/fish/vendor_completions.d/standards-sync.fish; do
+            test -s "$RUNNER_TEMP/stage/usr/local/$f" || { echo "missing $f"; exit 1; }
           done
-          echo "All required standard files are present."
-
-      - name: Check for prohibited em dashes in PR and docs
+          "$RUNNER_TEMP/stage/usr/local/bin/standards-sync" --help
+      - name: Run the README Quick Start as written
+        env:
+          HOME: ${{ runner.temp }}/home
         run: |
-          if grep -rn "—" README.md PR-TEMPLATE.md CHANGELOG.md; then
-            echo "Prohibited em dash found"
-            exit 1
-          fi
-          echo "Em dash check passed."
+          mkdir -p "$HOME"
+          awk '/^## Quick Start/{f=1} f && /^```bash/{c=1; next} c && /^```/{exit} c' README.md > "$RUNNER_TEMP/quickstart.sh"
+          cat "$RUNNER_TEMP/quickstart.sh"
+          bash -euo pipefail "$RUNNER_TEMP/quickstart.sh"
 
-      - name: Validate sync script syntax
+  devcontainer:
+    name: Dev container boots to make test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
+        with:
+          push: never
+          runCmd: make test
+
+  validate:
+    name: validate
+    if: always()
+    needs: [lint, test, docs, api, supply-chain, dependency-review, install, devcontainer]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job passed or was skipped
+        env:
+          NEEDS: ${{ toJSON(needs) }}
         run: |
-          python3 -m py_compile scripts/sync.py
-          echo "Sync script syntax validated."
+          echo "$NEEDS" | python3 -c '
+          import json, sys
+          bad = {k: v["result"] for k, v in json.load(sys.stdin).items() if v["result"] not in ("success", "skipped")}
+          print(bad or "all jobs passed")
+          sys.exit(1 if bad else 0)'

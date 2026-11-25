@@ -1,0 +1,169 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Publishes a release when the maintainer pushes a signed tag v<version>
+# (AGENTS.md section 3). Run it by hand with dry-run to see the assets and
+# notes without publishing. A tag whose tree has no .github/releases/<tag>.md
+# predates this workflow and is published by hand; the workflow skips it.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, for example v0.0.3
+        required: true
+      dry-run:
+        description: Build and compose the notes, but do not publish
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      automated: ${{ steps.scope.outputs.automated }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch the annotated tag
+        run: git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
+      - id: scope
+        name: Released by this workflow?
+        run: |
+          if git cat-file -e "$TAG:.github/releases/$TAG.md" 2>/dev/null; then
+            echo "automated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::$TAG predates the release workflow (no .github/releases/$TAG.md); publish it by hand"
+            echo "automated=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        if: steps.scope.outputs.automated == 'true'
+        with:
+          python-version: "3.13"
+      - name: Preflight (signed annotated tag, message, on main, versions)
+        if: steps.scope.outputs.automated == 'true'
+        run: uv run --frozen python scripts/release.py preflight "$TAG"
+
+  build:
+    needs: preflight
+    if: needs.preflight.outputs.automated == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - name: Build the assets
+        run: |
+          version="${TAG#v}"
+          SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          export SOURCE_DATE_EPOCH
+          uv build --out-dir release
+          make man completions sbom
+          cp scripts/sync.py release/standards-sync
+          cp build/man/standards-sync.1 build/standards-sync.cdx.json release/
+          tar --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --numeric-owner \
+            -czf "release/standards-sync-completions-$version.tar.gz" -C build completions
+          (cd release && shasum -a 256 -- * > ../SHA256SUMS) && mv SHA256SUMS release/
+          cat release/SHA256SUMS
+      - name: Attest build provenance (SLSA)
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: release/*
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: release/
+          if-no-files-found: error
+
+  notes:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: release
+      - name: Compose the release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          uv run --frozen python scripts/release.py notes "$TAG" --sums release/SHA256SUMS > notes.md
+          cat notes.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: notes
+          path: notes.md
+          if-no-files-found: error
+
+  publish:
+    needs: notes
+    if: github.event_name == 'push' || inputs.dry-run == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: .
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh release create "$TAG" release/* --repo "$REPO" --verify-tag \
+            --title "standards ${TAG#v}" --notes-file notes/notes.md
+      - name: Audit the published release (title, sections)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh release view "$TAG" --repo "$REPO" --json name,body > live.json
+          python3 - "$TAG" <<'PY'
+          import json, sys
+          tag = sys.argv[1]
+          live = json.load(open("live.json"))
+          want = f"standards {tag[1:]}"
+          sections = ["## Highlights ⭐️", "## What's Changed", "## Checksums", "**Full Changelog**"]
+          body = live["body"]
+          problems = [f"title {live['name']!r} is not {want!r}"] if live["name"] != want else []
+          problems += [f"missing {s}" for s in sections if s not in body]
+          order = [body.find(s) for s in sections]
+          problems += ["sections out of order"] if order != sorted(order) else []
+          problems += ["em dash in body"] if "\u2014" in body else []
+          print("\n".join(problems) or "release audit: title and notes match")
+          sys.exit(1 if problems else 0)
+          PY
+      - name: Repair the release if the audit failed
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: gh release edit "$TAG" --repo "$REPO" --title "standards ${TAG#v}" --notes-file notes/notes.md

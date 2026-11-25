@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+name: Standard change
+description: A rule that is wrong, contradicts another, or is missing.
+labels: [standard]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The file and section, for example `AGENTS.md` section 3.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What the rule says now, and the evidence that it is wrong or missing.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed wording
+    validations:
+      required: false
