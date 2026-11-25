@@ -22,6 +22,9 @@ All notable changes to Standards are recorded here, in the form of
 - ADR 0006: `standards-sync` becomes a package, with a single-file zipapp
   build, in the first change that needs to add to `sync.py`, which
   reached the 500-line file ceiling in 0.0.14.
+- `GOVERNANCE.md` lists what a second maintainer is given (repository
+  role, signing key, PyPI, AUR, tap and Best Practices access, security
+  contact) and the review rule that starts with them.
 
 ### Changed
 
