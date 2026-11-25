@@ -1,6 +1,6 @@
 {
   "name": "standards",
-  "image": "mcr.microsoft.com/devcontainers/python:3.13-bookworm",
+  "build": { "dockerfile": "Dockerfile" },
   "features": {
     "ghcr.io/devcontainers/features/node:2": {},
     "ghcr.io/va-h/devcontainers-features/uv:1": {}
