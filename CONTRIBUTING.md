@@ -16,6 +16,40 @@ All contributions to this repository must adhere to:
 
 [DEVELOPMENT.md](DEVELOPMENT.md) sets up the tools and explains `make check`.
 
+## Coding Standards
+
+- **Python** follows [PEP 8](https://peps.python.org/pep-0008/) as `ruff format`
+  writes it, and passes the `ruff` rule set in `pyproject.toml`; every public
+  function has a docstring ([PEP 257](https://peps.python.org/pep-0257/)).
+- **Every function** stays within the complexity ceilings of
+  [AGENTS.md](AGENTS.md) section 0.
+- **Markdown** passes `markdownlint` (`.markdownlint-cli2.yaml`); **workflows**
+  pass `actionlint`; **shell** in the release scripts passes `shellcheck`.
+- `make lint` checks all of it, and CI fails on any finding.
+
+## Tests
+
+- **New functionality comes with tests.** A change that adds or changes
+  behaviour adds tests for it to the automated suite (`tests/`, or `fuzz/`
+  for input handling) in the same pull request.
+- **A bug fix comes with a regression test** that fails before the fix and
+  passes after it ([AGENTS.md](AGENTS.md) section 9).
+- Branch coverage stays at 95 percent or more (`make test` enforces it).
+
+## Code Review
+
+Every change reaches `main` through a pull request, and the maintainer
+reviews it before merging. The review checks that:
+
+- `make check` and every CI job pass;
+- the change does what its description says, with tests for new
+  behaviour and a regression test for each fix;
+- it follows the coding standards above and the invariants of
+  [AGENTS.md](AGENTS.md) section 1;
+- each commit is signed and carries the author's `Signed-off-by:`.
+
+A change that fails any of these is not merged until it is fixed.
+
 ## Commit Guidelines
 
 - Format: `<type>: <subject>` (maximum 50 characters, imperative mood).
