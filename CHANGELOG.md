@@ -9,6 +9,15 @@ All notable changes to Standards are recorded here, in the form of
 
 ## [0.0.4] - 2026-11-25
 
+### Added
+
+- Coverage-guided fuzzing with Atheris (`fuzz/fuzz_atheris.py`, seeded
+  from `fuzz/corpus/`), run in CI's new `fuzz` job and by
+  `make fuzz-atheris` on Linux x86-64. It checks the STANDARDS_TARGETS
+  parser, `blob_of` and the drift check against a byte comparison. The
+  OpenSSF Scorecard recognises Atheris, not Hypothesis, so its first run
+  on `main` reported the project as not fuzzed.
+
 ### Changed
 
 - The dev tools declare their own floor, Python 3.10

@@ -62,6 +62,19 @@ jobs:
       - name: Fuzz corpus replay and property tests
         run: make fuzz
 
+  fuzz:
+    name: Coverage-guided fuzzing (Atheris)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: "3.13"
+      - name: Fuzz from the seed corpus
+        run: make fuzz-atheris
+
   floor:
     name: Python 3.9 floor, end to end (${{ matrix.os }})
     strategy:
@@ -184,7 +197,7 @@ jobs:
   validate:
     name: validate
     if: always()
-    needs: [lint, test, floor, docs, api, supply-chain, dependency-review, install, devcontainer]
+    needs: [lint, test, fuzz, floor, docs, api, supply-chain, dependency-review, install, devcontainer]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped
