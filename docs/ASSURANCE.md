@@ -79,6 +79,7 @@ the targets, the hooks and the clone directly.
 | OS command injection (CWE-78) | `git` is the only command run, with a fixed argument list and no shell. |
 | Silent loss of an edit made in place | Content is compared with every version this repository committed (git blob ids) before any overwrite. |
 | Following a symbolic link (CWE-59) | A target that links to the source is detected and left alone. A target file that links elsewhere is written through, which only someone who can already write the user's files can arrange (trust boundary 2). |
+| Partial writes and roll-backs | Every write is a temporary file renamed over the target, so an interrupted run leaves the old file whole; a pull refuses a `~/Code` copy that is an earlier published version (`[STALE]`); an explicit `STANDARDS_REPO` that is missing is an error, not a fallback to another source. |
 | Unsafe error handling | Errors are caught by type (`OSError`), reported per file, and never silenced; ruff forbids blind `except`. |
 | Supply-chain substitution (CWE-494, CWE-829) | Actions pinned by commit SHA; dependencies locked in `uv.lock`, constrained away from advised versions, audited with OSV and dependency review; signed tags, Sigstore-signed checksums and SLSA provenance on releases. |
 

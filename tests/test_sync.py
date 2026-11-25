@@ -20,9 +20,13 @@ def test_source_from_environment(home: Path, source: Path, monkeypatch: pytest.M
     assert sync.find_canonical_source() == source
 
 
-def test_invalid_environment_source_falls_back_to_checkout(home: Path, tmp_path: Path, monkeypatch) -> None:
+def test_an_explicit_source_that_is_missing_is_not_replaced(home: Path, tmp_path: Path, monkeypatch, capsys) -> None:
     monkeypatch.setenv("STANDARDS_REPO", str(tmp_path / "missing"))
-    assert sync.find_canonical_source() == Path(sync.__file__).resolve().parents[1]
+    assert sync.find_canonical_source() is None
+    for argv in (["--check"], ["--install-hooks"], ["--push"]):
+        monkeypatch.setattr(sys, "argv", ["standards-sync", *argv])
+        assert sync.main() == 1
+        assert f"STANDARDS_REPO={tmp_path / 'missing'} does not hold the standards" in capsys.readouterr().err
 
 
 def test_source_from_home_candidates(home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -228,6 +232,35 @@ def test_push_reports_a_failed_copy(source: Path, tmp_path: Path, capsys) -> Non
     assert f"could not write {len(sync.STANDARD_FILES)} file(s)" in out
 
 
+def test_an_interrupted_copy_leaves_the_target_whole(source: Path, tmp_path: Path, monkeypatch) -> None:
+    target = tmp_path / "t"
+    write_standards(target)
+    write_standards(source, body="v2")
+    git_commit(source, "v2")
+
+    def half_copy(src: Path, dst: Path) -> None:
+        Path(dst).write_text("half")
+        raise OSError("disk full")
+
+    monkeypatch.setattr(sync.shutil, "copy2", half_copy)
+    assert sync.push_sync(source, [("T", target)]) == 1
+    assert (target / "AGENTS.md").read_text() == "AGENTS.md v1\n"
+    assert sorted(p.name for p in target.iterdir()) == sorted(sync.STANDARD_FILES)
+
+
+def test_push_writes_through_a_link_to_another_file(source: Path, tmp_path: Path) -> None:
+    target, elsewhere = tmp_path / "t", tmp_path / "elsewhere"
+    write_standards(target)
+    write_standards(elsewhere)
+    (target / "AGENTS.md").unlink()
+    (target / "AGENTS.md").symlink_to(elsewhere / "AGENTS.md")
+    write_standards(source, body="v2")
+    git_commit(source, "v2")
+    assert sync.push_sync(source, [("T", target)]) == 0
+    assert (target / "AGENTS.md").is_symlink()
+    assert (elsewhere / "AGENTS.md").read_text() == "AGENTS.md v2\n"
+
+
 def test_push_skips_files_missing_from_source(source: Path, tmp_path: Path) -> None:
     (source / "GEMINI.md").unlink()
     target = tmp_path / "t"
@@ -273,6 +306,33 @@ def test_pull_leaves_linked_files_alone(home: Path, source: Path, monkeypatch, c
     monkeypatch.setenv("STANDARDS_TARGETS", "")
     assert sync.pull_sync(source) == 0
     assert capsys.readouterr().out.count("[LINKED]") == len(sync.STANDARD_FILES)
+
+
+def _stale_workspace(home: Path, source: Path) -> None:
+    """~/Code holds every file at v1; the source has moved AGENTS.md on to v2."""
+    write_standards(home / "Code")
+    (source / "AGENTS.md").write_text("AGENTS.md v2\n")
+    git_commit(source, "v2")
+
+
+def test_pull_refuses_an_earlier_published_version(home: Path, source: Path, tmp_path, monkeypatch, capsys) -> None:
+    _stale_workspace(home, source)
+    mirror = tmp_path / "mirror"
+    write_standards(mirror)
+    monkeypatch.setenv("STANDARDS_TARGETS", str(mirror))
+    assert sync.pull_sync(source) == 1
+    assert (source / "AGENTS.md").read_text() == "AGENTS.md v2\n"
+    assert (mirror / "AGENTS.md").read_text() == "AGENTS.md v2\n"
+    assert "[STALE] AGENTS.md" in capsys.readouterr().out
+
+
+def test_pull_force_adopts_an_earlier_published_version(home: Path, source: Path, monkeypatch) -> None:
+    _stale_workspace(home, source)
+    monkeypatch.setenv("STANDARDS_TARGETS", "")
+    monkeypatch.setenv("STANDARDS_REPO", str(source))
+    monkeypatch.setattr(sys, "argv", ["standards-sync", "--pull", "--force"])
+    assert sync.main() == 0
+    assert (source / "AGENTS.md").read_text() == "AGENTS.md v1\n"
 
 
 def test_pull_reports_a_failed_copy(home: Path, source: Path, monkeypatch, capsys) -> None:
@@ -339,6 +399,27 @@ def test_main_dispatch(argv: list[str], called: str, source: Path, home: Path, m
     monkeypatch.setattr(sys, "argv", ["standards-sync", *argv])
     assert sync.main() == 7
     assert seen == [called]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        (["--check", "--push"], "check_sync", "--check and --push together"),
+        (["--pull", "--install-hooks"], "install_hooks", "--install-hooks and --pull together"),
+        (["--check", "--force"], "check_sync", "--force has no effect without --push or --pull"),
+    ],
+)
+def test_contradictory_options_warn(case, source: Path, home: Path, monkeypatch, capsys) -> None:
+    argv, runs, warning = case
+    monkeypatch.setenv("STANDARDS_REPO", str(source))
+    seen: list[str] = []
+    monkeypatch.setattr(sync, runs, lambda *a, **k: seen.append(runs) or 0)
+    monkeypatch.setattr(sys, "argv", ["standards-sync", *argv])
+    assert sync.main() == 0
+    assert seen == [runs]
+    err = capsys.readouterr().err
+    assert warning in err
+    assert "will be an error" in err
 
 
 def test_main_check_end_to_end(source: Path, home: Path, tmp_path: Path, monkeypatch, capsys) -> None:

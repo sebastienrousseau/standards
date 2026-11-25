@@ -45,8 +45,6 @@ def _holds_standards(directory: Path, readable: bool = True) -> bool:
 
 def _source_candidates() -> Iterator[tuple[Path, bool]]:
     """Directories that may hold the standards, in order, with whether to test a read."""
-    if "STANDARDS_REPO" in os.environ:
-        yield Path(os.environ["STANDARDS_REPO"]), False
     # First check if invoked from within a dotfiles or standards git checkout
     for parent in Path(__file__).resolve().parents:
         yield parent / "defaults" / "Code", True
@@ -62,7 +60,10 @@ def _source_candidates() -> Iterator[tuple[Path, bool]]:
 
 
 def find_canonical_source() -> Path | None:
-    """Locate the canonical source directory containing the standard files."""
+    """The source holding the standards; STANDARDS_REPO, when set, is the only candidate."""
+    if "STANDARDS_REPO" in os.environ:
+        explicit = Path(os.environ["STANDARDS_REPO"])
+        return explicit if _holds_standards(explicit, readable=False) else None
     return next((c for c, readable in _source_candidates() if _holds_standards(c, readable)), None)
 
 
@@ -264,6 +265,20 @@ def safe_to_overwrite(src_dir: Path, src: Path, dst: Path) -> bool:
     return blob_of(dst) in published_blobs(src_dir, src.name)
 
 
+def atomic_copy(src: Path, dst: Path) -> None:
+    """Copy `src` over `dst` (through a link) by renaming a temporary copy, never half written."""
+    real = dst.resolve() if dst.is_symlink() else dst
+    if real.exists() and not os.access(real, os.W_OK):
+        # A rename would replace a read-only file that a write could not change.
+        raise PermissionError(f"[Errno 13] Permission denied: '{real}'")
+    tmp = real.with_name(f".{real.name}.standards-sync.tmp")
+    try:
+        shutil.copy2(src, tmp)
+        os.replace(tmp, real)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
 def is_same_file(a: Path, b: Path) -> bool:
     """Whether `a` and `b` are one file, as when a target links to the source.
 
@@ -291,7 +306,7 @@ def _push_one(src_dir: Path, fname: str, dst: Path, force: bool) -> str:
                 "--pull to adopt it, --push --force to overwrite"
             )
             return "kept"
-        shutil.copy2(src, dst)
+        atomic_copy(src, dst)
         print(f"  [COPIED] {fname}")
     except (OSError, PermissionError) as e:
         print(f"  [ERROR] {fname}: {e}")
@@ -340,8 +355,37 @@ def push_sync(src_dir: Path | None, targets: list[tuple[str, Path]], force: bool
     return 0
 
 
-def pull_sync(src_dir: Path | None) -> int:
-    """Pull edited files from workspace root (~/Code) into canonical repo."""
+def is_stale(src_dir: Path, src: Path, dst: Path) -> bool:
+    """Whether `src` is an earlier published version of `dst`: left behind, not edited."""
+    return (
+        dst.is_file()
+        and not filecmp.cmp(src, dst, shallow=False)
+        and blob_of(src) in published_blobs(src_dir, dst.name)
+    )
+
+
+def _pull_one(src_dir: Path, code_dir: Path, fname: str, force: bool) -> str:
+    """Pull one file from ~/Code: "pulled", "linked", "stale", "error" or "absent"."""
+    src, dst = code_dir / fname, src_dir / fname
+    try:
+        if not src.is_file():
+            return "absent"
+        if is_same_file(src, dst):
+            print(f"  [LINKED]  {fname}")
+            return "linked"
+        if not force and is_stale(src_dir, src, dst):
+            print(f"  [STALE] {fname}: an earlier published version; not pulled (--pull --force to adopt it)")
+            return "stale"
+        atomic_copy(src, dst)
+        print(f"  [PULLED] {fname}")
+    except (OSError, PermissionError) as e:
+        print(f"  [ERROR] {fname}: {e}")
+        return "error"
+    return "pulled"
+
+
+def pull_sync(src_dir: Path | None, force: bool = False) -> int:
+    """Pull edits from ~/Code into the source, then push; [STALE] files only with `force`."""
     if src_dir is None:
         print("Cannot pull: no standards destination directory located.")
         return 1
@@ -352,22 +396,10 @@ def pull_sync(src_dir: Path | None) -> int:
         return 1
 
     print(f"Pulling standards from workspace root ({code_dir}) into repo...\n")
-    for fname in STANDARD_FILES:
-        src = code_dir / fname
-        dst = src_dir / fname
-        try:
-            if not src.is_file():
-                continue
-            if is_same_file(src, dst):
-                print(f"  [LINKED]  {fname}")
-                continue
-            shutil.copy2(src, dst)
-            print(f"  [PULLED] {fname}")
-        except (OSError, PermissionError) as e:
-            print(f"  [ERROR] {fname}: {e}")
+    stale = [_pull_one(src_dir, code_dir, fname, force) for fname in STANDARD_FILES].count("stale")
     print("\nPull complete. Running push to update dotfiles mirrors...")
-    targets = [t for t in get_target_dirs(src_dir) if t[0] != "Workspace Root"]
-    return push_sync(src_dir, targets)
+    pushed = push_sync(src_dir, [t for t in get_target_dirs(src_dir) if t[0] != "Workspace Root"])
+    return 1 if stale else pushed
 
 
 def install_hooks(src_dir: Path | None) -> int:
@@ -403,14 +435,14 @@ def install_hooks(src_dir: Path | None) -> int:
 
 EPILOG = """\
 environment:
-  STANDARDS_REPO     the canonical source directory, tried first
+  STANDARDS_REPO     the canonical source directory; when set, the only one
   STANDARDS_TARGETS  target directories separated by the path separator (:),
                      replacing the default ~/Code and dotfiles targets
 
 exit status:
   0  in sync (or, for --check, no source found), or every file pushed or pulled
-  1  drift found, a file edited in place was kept, a file or hook could not
-     be written, an existing hook was kept, or there was no source
+  1  drift, a kept edit or [STALE] copy, a file or hook not written, an
+     existing hook kept, no source, or a STANDARDS_REPO without the standards
 """
 
 
@@ -425,23 +457,39 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--check", action="store_true", help="Check for drift without modifying files")
     parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode: suppress output unless drift detected")
     parser.add_argument("--push", action="store_true", help="Push canonical repo standards to all targets")
-    parser.add_argument("--force", action="store_true", help="With --push, also overwrite files edited in place")
+    parser.add_argument("--force", action="store_true", help="Push over edits made in place, or pull [STALE] copies")
     parser.add_argument("--pull", action="store_true", help="Pull standards from workspace root into repo")
     parser.add_argument("--install-hooks", action="store_true", help="Install git post-commit and post-merge hooks")
     return parser
 
 
+def _warn_contradictions(args: argparse.Namespace) -> None:
+    """Warn, on standard error, about options that do nothing together."""
+    named = [c for c in ("install_hooks", "pull", "check", "push") if getattr(args, c)]
+    flags = [f"--{c.replace('_', '-')}" for c in named]
+    later = "this will be an error in a future release"
+    if len(named) > 1:
+        print(f"standards-sync: {' and '.join(flags)} together: running {flags[0]} only; {later}", file=sys.stderr)
+    if args.force and named[:1] not in (["push"], ["pull"], []):
+        print(f"standards-sync: --force has no effect without --push or --pull; {later}", file=sys.stderr)
+
+
 def main() -> int:
     """Run the command named on the command line; push when none is."""
     args = build_parser().parse_args()
+    _warn_contradictions(args)
 
     src_dir = find_canonical_source()
+    if src_dir is None and "STANDARDS_REPO" in os.environ:
+        repo = os.environ["STANDARDS_REPO"]
+        print(f"standards-sync: STANDARDS_REPO={repo} does not hold the standards", file=sys.stderr)
+        return 1
     targets = get_target_dirs(src_dir) if src_dir else []
 
     if args.install_hooks:
         return install_hooks(src_dir)
     if args.pull:
-        return pull_sync(src_dir)
+        return pull_sync(src_dir, force=args.force)
     if args.check:
         return check_sync(src_dir, targets, quiet=args.quiet)
 

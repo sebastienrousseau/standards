@@ -7,6 +7,30 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.14] - 2026-11-25
+
+### Changed
+
+- `STANDARDS_REPO`, when set, is the only source. A directory that does
+  not hold the standards is now an error (exit 1) instead of a silent
+  fall-back to another source; `--install-hooks` had written hooks into
+  a repository the user did not name.
+- Options that do nothing together (`--check --push`, `--force` with
+  `--check`) print a warning on standard error. They will be an error
+  in a later release, as `docs/POLICIES.md` requires for a contract
+  change.
+
+### Fixed
+
+- `--pull` copied a `~/Code` file that held an earlier published version
+  over the newer source, then pushed it to every mirror. Such a file is
+  now reported `[STALE]` and not pulled, and the pull exits 1;
+  `--pull --force` still adopts it.
+- Pushes and pulls wrote each file in place, so an interrupted run could
+  leave a half-written standard. Each write now goes to a temporary file
+  renamed over the target; links to other files are still written
+  through, and read-only files are still refused.
+
 ## [0.0.13] - 2026-11-25
 
 ### Fixed
@@ -253,6 +277,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.14]: https://github.com/sebastienrousseau/standards/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/sebastienrousseau/standards/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/sebastienrousseau/standards/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/sebastienrousseau/standards/compare/v0.0.10...v0.0.11
