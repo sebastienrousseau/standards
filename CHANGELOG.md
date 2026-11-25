@@ -7,6 +7,15 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.12] - 2026-11-25
+
+### Added
+
+- `standards-sync` is published in the Homebrew tap
+  (`brew install sebastienrousseau/tap/standards-sync`) and on the AUR
+  (`standards-sync`), from the 0.0.10 recipes; the README and
+  `docs/packaging.md` show how to install from each.
+
 ## [0.0.11] - 2026-11-25
 
 ### Changed
@@ -230,6 +239,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.12]: https://github.com/sebastienrousseau/standards/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/sebastienrousseau/standards/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/sebastienrousseau/standards/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/sebastienrousseau/standards/compare/v0.0.8...v0.0.9

@@ -77,6 +77,13 @@ From a clone, with the manpage and bash, zsh and fish completions:
 make PREFIX="$HOME/.local" install
 ```
 
+With Homebrew, or from the AUR on Arch:
+
+```bash
+brew install sebastienrousseau/tap/standards-sync
+yay -S standards-sync               # or any AUR helper
+```
+
 Each [release](https://github.com/sebastienrousseau/standards/releases)
 also carries a `.deb` and a `.rpm`, and the recipes for Arch (AUR),
 Homebrew and Nix; [docs/packaging.md](docs/packaging.md) lists them.
