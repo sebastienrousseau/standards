@@ -189,6 +189,97 @@ jobs:
           cat "$RUNNER_TEMP/quickstart.sh"
           bash -euo pipefail "$RUNNER_TEMP/quickstart.sh"
 
+  packages-linux:
+    name: Packages build and install (deb, rpm, Arch)
+    runs-on: ubuntu-latest
+    env:
+      FEDORA: fedora:44@sha256:15da97ed9aa94dd3d92c3925eb89520f6c80e07ea7ee24cba848d1f8b6912b3e
+      ARCH: archlinux:latest@sha256:375a401bb3c6376b37f40b6dfa25067db37ec78d0b7af67ae6315f43a0184a9d
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: "3.13"
+      - name: make pkg
+        run: make pkg
+      - name: Debian package, installed with apt
+        run: |
+          root="$(echo build/pkg/deb/standards-sync_*_all)"
+          dpkg-deb --root-owner-group --build "$root" "$root.deb"
+          sudo apt-get install -y "./$root.deb"
+          standards-sync --help
+          man -w standards-sync
+          sudo apt-get remove -y standards-sync
+      - name: RPM, built and installed on Fedora
+        run: |
+          docker run --rm -v "$PWD/build/pkg:/pkg" "$FEDORA" bash -euxc '
+            dnf -y -q install rpm-build
+            mkdir -p ~/rpmbuild/SOURCES && cp /pkg/*-unix.tar.gz ~/rpmbuild/SOURCES/
+            rpmbuild -bb /pkg/rpm/standards-sync.spec
+            dnf -y -q install ~/rpmbuild/RPMS/noarch/standards-sync-*.rpm
+            standards-sync --help
+            rpm -ql standards-sync'
+      - name: Arch package, built with makepkg and installed
+        run: |
+          docker run --rm -v "$PWD/build/pkg:/pkg" "$ARCH" bash -euxc '
+            pacman -Syu --noconfirm --needed -q base-devel git python
+            useradd -m builder
+            cp -r /pkg/aur /home/builder/aur && cp /pkg/*-unix.tar.gz /home/builder/aur/
+            chown -R builder /home/builder/aur
+            su builder -c "cd ~/aur && makepkg --noconfirm && makepkg --printsrcinfo > generated.SRCINFO"
+            diff -u /home/builder/aur/.SRCINFO /home/builder/aur/generated.SRCINFO
+            pacman -U --noconfirm /home/builder/aur/standards-sync-*.pkg.tar.zst
+            standards-sync --help'
+
+  packages-brew:
+    name: Homebrew formula, installed and tested
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: "3.13"
+      - name: make pkg, with the tarball served from disk
+        run: make pkg URL_BASE="file://$PWD/build/pkg"
+      - name: brew install and brew test
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: |
+          brew tap-new --no-git local/pkgtest
+          cp build/pkg/brew/standards-sync.rb "$(brew --repository)/Library/Taps/local/homebrew-pkgtest/Formula/"
+          brew install local/pkgtest/standards-sync
+          brew test local/pkgtest/standards-sync
+          standards-sync --help
+
+  packages-nix:
+    name: Nix expression, built against nixpkgs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: "3.13"
+      - name: make pkg
+        run: make pkg
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+        with:
+          # nixos-26.05, pinned by commit
+          nix_path: nixpkgs=https://github.com/NixOS/nixpkgs/archive/0dc498bfe49baeb18b0f9891e800b53bb2603193.tar.gz
+      - name: nix-build package.nix
+        run: |
+          # The release URL does not exist before the tag; add the tarball
+          # to the store under its hash so fetchurl finds it there.
+          nix-store --add-fixed sha256 build/pkg/standards-sync-*-unix.tar.gz
+          nix-build -E 'with import <nixpkgs> { }; callPackage ./build/pkg/nix/package.nix { }'
+          ./result/bin/standards-sync --help
+          test -s result/share/man/man1/standards-sync.1
+
   devcontainer:
     name: Dev container boots to make test
     runs-on: ubuntu-latest
@@ -204,7 +295,7 @@ jobs:
   validate:
     name: validate
     if: always()
-    needs: [lint, test, fuzz, floor, docs, api, supply-chain, dependency-review, install, devcontainer]
+    needs: [lint, test, fuzz, floor, docs, api, supply-chain, dependency-review, install, packages-linux, packages-brew, packages-nix, devcontainer]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped

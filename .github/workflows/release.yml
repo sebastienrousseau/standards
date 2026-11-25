@@ -85,6 +85,26 @@ jobs:
           cp build/man/standards-sync.1 build/standards-sync.cdx.json release/
           tar --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --numeric-owner \
             -czf "release/standards-sync-completions-$version.tar.gz" -C build completions
+      - name: Build the distribution packages and recipes
+        env:
+          FEDORA: fedora:44@sha256:15da97ed9aa94dd3d92c3925eb89520f6c80e07ea7ee24cba848d1f8b6912b3e
+        run: |
+          version="${TAG#v}"
+          SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          export SOURCE_DATE_EPOCH
+          make pkg
+          root="build/pkg/deb/standards-sync_${version}-1_all"
+          dpkg-deb --root-owner-group --build "$root" "release/standards-sync_${version}-1_all.deb"
+          docker run --rm -e SOURCE_DATE_EPOCH -v "$PWD/build/pkg:/pkg" "$FEDORA" bash -euxc '
+            dnf -y -q install rpm-build
+            mkdir -p ~/rpmbuild/SOURCES && cp /pkg/*-unix.tar.gz ~/rpmbuild/SOURCES/
+            rpmbuild -bb /pkg/rpm/standards-sync.spec
+            cp ~/rpmbuild/RPMS/noarch/standards-sync-*.rpm /pkg/'
+          cp build/pkg/standards-sync-*.rpm "build/pkg/standards-sync-${version}-unix.tar.gz" release/
+          cp build/pkg/rpm/standards-sync.spec build/pkg/brew/standards-sync.rb release/
+          cp build/pkg/aur/PKGBUILD release/PKGBUILD
+          cp build/pkg/aur/.SRCINFO release/SRCINFO
+          cp build/pkg/nix/package.nix release/standards-sync.nix
       - name: Attest build provenance (SLSA)
         id: attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2

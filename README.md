@@ -77,6 +77,10 @@ From a clone, with the manpage and bash, zsh and fish completions:
 make PREFIX="$HOME/.local" install
 ```
 
+Each [release](https://github.com/sebastienrousseau/standards/releases)
+also carries a `.deb` and a `.rpm`, and the recipes for Arch (AUR),
+Homebrew and Nix; [docs/packaging.md](docs/packaging.md) lists them.
+
 The [dotfiles](https://github.com/sebastienrousseau/dotfiles) also install
 it as `~/.local/bin/standards-sync`, and link `~/Code`'s standards to a
 clone of this repository.

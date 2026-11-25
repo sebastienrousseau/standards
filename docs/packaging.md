@@ -27,14 +27,29 @@ For anyone packaging `standards-sync`.
   release assets carry SHA-256 sums and build provenance. See
   [Verifying releases](VERIFYING.md).
 
+## Packages and recipes
+
+`pkg/` holds one recipe per format. `make pkg` installs the command into
+a staging tree (the `install` contract above, plus the licences), packs
+it as `standards-sync-<version>-unix.tar.gz`, byte-identical for the same
+`SOURCE_DATE_EPOCH`, and renders each recipe against that tarball's URL
+and SHA-256 into `build/pkg/`. Nothing generated is committed.
+
+| Format | Recipe | Built and installed in CI on | Attached to each release |
+| :--- | :--- | :--- | :--- |
+| Debian, Ubuntu | `pkg/deb/control`, `copyright` | Ubuntu, with `apt` | `standards-sync_<version>-1_all.deb` |
+| Fedora, RHEL | `pkg/rpm/standards-sync.spec` | Fedora 44, with `rpmbuild` and `dnf` | the `.noarch.rpm` and the spec |
+| Arch (AUR) | `pkg/aur/PKGBUILD`, `.SRCINFO` | Arch, with `makepkg` and `pacman`; `.SRCINFO` must match `makepkg --printsrcinfo` | `PKGBUILD`, `SRCINFO` |
+| Homebrew | `pkg/brew/standards-sync.rb` | macOS, `brew install` and `brew test` | `standards-sync.rb` |
+| Nix | `pkg/nix/package.nix` | nixpkgs 26.05, `nix-build` | `standards-sync.nix` |
+
+The rendered recipes point at the release's own tarball, so a packager
+can take them from the release page as they are.
+
 ## What is not provided
 
-There are no distribution packages, container images or standalone
-binaries. The default targets are one person's workspace layout, so the
-command is useful to that workspace and to anyone adopting the same
-standards with `STANDARDS_TARGETS`; a distribution package would add
-nothing a `make install` does not. A container would need the home
-directory mounted to do anything. The command is a single Python file
-that runs on the system `python3`, so a frozen binary would only add
-size. This will be revisited if someone outside the workspace asks to
-package it.
+There is no container image: the command edits files in the user's home
+directory and their workspace, so a container would need the home
+directory mounted to do anything, and would add nothing a package does
+not. There is no frozen binary either: the command is a single Python
+file that runs on the system `python3`.
