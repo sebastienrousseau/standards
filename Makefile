@@ -62,7 +62,7 @@ api: ## Fail on a breaking change to sync.py's public API since the last release
 audit: ## Advisory audit of every locked dependency, by hash
 	@mkdir -p $(BUILD)
 	$(UV) export --frozen --no-emit-project --format requirements.txt --output-file $(BUILD)/requirements.txt
-	$(RUN) pip-audit --strict --disable-pip --require-hashes -r $(BUILD)/requirements.txt
+	$(RUN) pip-audit --strict --disable-pip --require-hashes --vulnerability-service osv -r $(BUILD)/requirements.txt
 
 man: ## Generate the manpage from the argument parser
 	@mkdir -p $(BUILD)/man

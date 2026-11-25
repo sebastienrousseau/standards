@@ -41,7 +41,9 @@ dev = [
   "coverage[toml]>=7.6",
   "griffe>=1.5",
   "hypothesis>=6.120",
-  "pip-audit>=2.7",
+  # pip-audit pulls in filelock, and no filelock release before 4.2.1
+  # (Python 3.11+) is free of GitHub advisories; the audit runs on 3.13.
+  "pip-audit>=2.7; python_version >= '3.11'",
   "pytest>=8.3",
   "radon>=6.0",
   "reuse[charset-normalizer]>=5.0",
@@ -111,3 +113,6 @@ skip = "./.git,./.venv,./uv.lock,./site,./build,./dist,*.gif"
 
 [tool.uv]
 default-groups = ["dev"]
+# Advisories: filelock up to 4.2.0 (GHSA-v4x8-3wr5-3wq8 and others,
+# fixed in 4.2.1). No affected version may resolve, in any environment.
+constraint-dependencies = ["filelock>=4.2.1"]

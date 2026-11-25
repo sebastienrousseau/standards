@@ -80,6 +80,11 @@ All notable changes to Standards are recorded here, in the form of
   link its standards to this repository. The per-file step of `--push`
   moves to `push_file`, which brings `push_sync` under the complexity
   ceilings (cyclomatic 10 to 6, cognitive 17 to 7).
+- The dev tools can no longer resolve a `filelock` affected by
+  GHSA-v4x8-3wr5-3wq8 and the other advisories fixed in 4.2.1: a uv
+  constraint requires `filelock>=4.2.1` in every environment, and
+  `pip-audit`, which pulls it in, installs only on Python 3.11 or later,
+  as no fixed release supports older versions. pip-audit now queries OSV.
 - Markdown lint findings across the standards: list spacing, a fenced
   block without a language, a table style, a code span with a trailing
   space.
