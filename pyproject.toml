@@ -112,6 +112,8 @@ exclude_also = ['if __name__ == "__main__":']
 
 [tool.codespell]
 skip = "./.git,./.venv,./uv.lock,./site,./build,./dist,*.gif"
+# in-toto's file extension, .intoto.jsonl, is not a misspelling of "into".
+ignore-words-list = "intoto"
 
 [tool.uv]
 default-groups = ["dev"]
