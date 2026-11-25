@@ -34,4 +34,6 @@ standards-sync --pull    # adopt an edit made in ~/Code, then push it on
 
 [Policies and stability](POLICIES.md) lists what each release promises,
 [Packaging](packaging.md) is for anyone packaging the command, and
-[Verifying releases](VERIFYING.md) checks a tag or a download.
+[Verifying releases](VERIFYING.md) checks a tag or a download, and the
+[security assurance case](ASSURANCE.md) explains why the security
+requirements hold.

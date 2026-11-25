@@ -238,6 +238,8 @@ Report vulnerabilities according to [`SECURITY.md`](SECURITY.md).
 - [User manual](https://sebastienrousseau.com/standards/): the standards and `standards-sync`
 - `man standards-sync`, after `make install`
 - [DEVELOPMENT.md](DEVELOPMENT.md): tools, the gate, tests, releases
+- [ROADMAP.md](ROADMAP.md) and [GOVERNANCE.md](GOVERNANCE.md): plans, roles and decisions
+- [docs/ASSURANCE.md](docs/ASSURANCE.md): the security assurance case
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the [decision records](docs/adr/index.md)
 - [CHANGELOG.md](CHANGELOG.md)
 

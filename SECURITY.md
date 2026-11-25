@@ -29,6 +29,12 @@ it write outside those paths, overwrite a file edited in place without
 leads an agent to an unsafe action (leaking a secret, publishing without
 review) is in scope too.
 
+## What you can expect
+
+[docs/ASSURANCE.md](docs/ASSURANCE.md) is the assurance case: the
+security requirements, the threat model and trust boundaries, and how the
+design and code meet them.
+
 ## How the repository is protected
 
 - Commits and release tags are SSH-signed; the keys are in `KEYS.asc`.

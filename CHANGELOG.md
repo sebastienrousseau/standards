@@ -7,6 +7,19 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.6] - 2026-11-25
+
+### Added
+
+- `ROADMAP.md`: what the project plans, and does not plan, through 2027.
+- `docs/ASSURANCE.md`: the security assurance case (requirements, threat
+  model, trust boundaries, secure design, common weaknesses countered).
+- `CONTRIBUTING.md` names the coding standards, requires tests for new
+  functionality and a regression test for each fix, and sets out what a
+  review checks.
+- `GOVERNANCE.md` lists the roles and their responsibilities, and states
+  the continuity gap: one maintainer, bus factor 1.
+
 ## [0.0.5] - 2026-11-25
 
 ### Added
@@ -155,6 +168,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.6]: https://github.com/sebastienrousseau/standards/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/sebastienrousseau/standards/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/sebastienrousseau/standards/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/sebastienrousseau/standards/compare/v0.0.2...v0.0.3
