@@ -7,6 +7,27 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.10] - 2026-11-25
+
+### Added
+
+- Distribution packages. `make pkg` packs the installed tree as a
+  reproducible `standards-sync-<version>-unix.tar.gz` and renders the
+  recipes in `pkg/` against it: a Debian package root, an RPM spec, an
+  AUR `PKGBUILD` and `.SRCINFO`, a Homebrew formula and a Nix expression.
+  CI builds and installs each one (apt on Ubuntu, dnf on Fedora 44,
+  pacman on Arch, brew on macOS, nix-build on nixpkgs 26.05), and every
+  release attaches the `.deb`, the `.rpm` and the recipes.
+- A dependency provenance policy (`docs/POLICIES.md`), enforced by
+  `scripts/check_lock.py` in `make lint`: every locked package from PyPI
+  with a SHA-256 for every file, and every `uv` call in the Makefiles and
+  workflows frozen to the lock.
+
+### Changed
+
+- The dev container's base image is pinned by digest, in
+  `.devcontainer/Dockerfile`, which Dependabot now updates.
+
 ## [0.0.9] - 2026-11-25
 
 ### Changed
@@ -201,6 +222,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.10]: https://github.com/sebastienrousseau/standards/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/sebastienrousseau/standards/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/sebastienrousseau/standards/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/sebastienrousseau/standards/compare/v0.0.6...v0.0.7
