@@ -70,8 +70,9 @@ def _env_targets(value: str) -> list[tuple[str, Path]]:
     """Targets named in STANDARDS_TARGETS, separated by os.pathsep."""
     targets: list[tuple[str, Path]] = []
     for item in value.split(os.pathsep):
-        if item.strip():
-            p = Path(item.strip())
+        p = Path(item.strip())
+        # Blank after Path normalises it ("./ /" is Path(" ")): ignore it too.
+        if item.strip() and str(p).strip():
             targets.append((p.name or "Custom Target", p))
     return targets
 
