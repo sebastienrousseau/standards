@@ -43,11 +43,15 @@ python3Packages.buildPythonApplication rec {
       --description "keep the code standards in sync" \
       --url ${meta.homepage} --output standards-sync.1
     installManPage standards-sync.1
-    for shell in bash zsh fish; do
+    for shell in bash zsh; do
       PYTHONPATH=scripts shtab --shell=$shell --prog standards-sync sync.build_parser > standards-sync.$shell
     done
-    installShellCompletion --cmd standards-sync \
-      --bash standards-sync.bash --zsh standards-sync.zsh --fish standards-sync.fish
+    installShellCompletion --cmd standards-sync --bash standards-sync.bash --zsh standards-sync.zsh
+    # Only newer shtab releases write fish completions; nixpkgs 26.05's cannot.
+    if shtab --help | grep -q fish; then
+      PYTHONPATH=scripts shtab --shell=fish --prog standards-sync sync.build_parser > standards-sync.fish
+      installShellCompletion --cmd standards-sync --fish standards-sync.fish
+    fi
   '';
 
   nativeCheckInputs = [
