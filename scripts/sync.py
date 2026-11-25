@@ -378,9 +378,27 @@ def install_hooks(src_dir: Path | None) -> int:
     return 0
 
 
+EPILOG = """\
+environment:
+  STANDARDS_REPO     the canonical source directory, tried first
+  STANDARDS_TARGETS  target directories separated by the path separator (:),
+                     replacing the default ~/Code and dotfiles targets
+
+exit status:
+  0  in sync (or, for --check, no source found), or every file pushed or pulled
+  1  drift found, a file edited in place was kept, or a push, pull or hook
+     install could not run
+"""
+
+
 def build_parser() -> argparse.ArgumentParser:
     """The command-line interface; also the source of the manpage and completions."""
-    parser = argparse.ArgumentParser(prog="standards-sync", description=__doc__)
+    parser = argparse.ArgumentParser(
+        prog="standards-sync",
+        description=__doc__,
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--check", action="store_true", help="Check for drift without modifying files")
     parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode: suppress output unless drift detected")
     parser.add_argument("--push", action="store_true", help="Push canonical repo standards to all targets")

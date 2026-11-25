@@ -364,3 +364,19 @@ def test_same_file_check_tolerates_errors(tmp_path: Path, monkeypatch: pytest.Mo
     (tmp_path / "a").write_text("a")
     monkeypatch.setattr(sync.os.path, "samefile", _raise)
     assert sync.is_same_file(tmp_path / "a", tmp_path / "a") is False
+
+
+# --- the command-line contract (docs/POLICIES.md, stability) ------------------
+
+
+def test_cli_options_are_stable() -> None:
+    options = {o for a in sync.build_parser()._actions for o in a.option_strings}
+    assert options == {"-h", "--help", "--check", "-q", "--quiet", "--push", "--force", "--pull", "--install-hooks"}
+
+
+def test_check_without_source_exits_zero(home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(sync, "__file__", str(tmp_path / "bin" / "standards-sync"))
+    monkeypatch.setattr(sys, "argv", ["standards-sync", "--check"])
+    assert sync.main() == 0
+    monkeypatch.setattr(sys, "argv", ["standards-sync", "--push"])
+    assert sync.main() == 1
