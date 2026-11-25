@@ -5,3 +5,15 @@
 *.swp
 *.swo
 *~
+
+# Tooling output
+.coverage
+.venv/
+.hypothesis/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+build/
+dist/
+site/
+.complexipy_cache/
