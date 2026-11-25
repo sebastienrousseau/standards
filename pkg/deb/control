@@ -1,0 +1,12 @@
+Package: standards-sync
+Version: @VERSION@-1
+Architecture: all
+Maintainer: Sebastien Rousseau <sebastian.rousseau@gmail.com>
+Depends: python3 (>= 3.9), git
+Section: devel
+Priority: optional
+Homepage: https://github.com/sebastienrousseau/standards
+Description: keep the code standards in sync without losing edits
+ standards-sync copies five canonical standards files to the workspace
+ root and the dotfiles copies, keeps any copy edited in place instead of
+ overwriting it, and reports the drift with diffs.

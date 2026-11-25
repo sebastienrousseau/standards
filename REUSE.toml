@@ -23,6 +23,8 @@ path = [
   "docs/AGENTS.md",
   "docs/GEMINI.md",
   "docs/REPO-STANDARD.md",
+  # Package recipes, rendered and submitted to distributions as they are.
+  "pkg/**",
 ]
 SPDX-FileCopyrightText = "2026 Sebastien Rousseau"
 SPDX-License-Identifier = "Apache-2.0 OR MIT"

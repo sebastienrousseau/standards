@@ -1,0 +1,17 @@
+# Maintainer: Sebastien Rousseau <sebastian.rousseau@gmail.com>
+pkgname=standards-sync
+pkgver=@VERSION@
+pkgrel=1
+pkgdesc='Keep the code standards in sync without losing edits'
+arch=('any')
+url='https://github.com/sebastienrousseau/standards'
+license=('Apache-2.0 OR MIT')
+depends=('python' 'git')
+source=("@TARBALL@::@URL@")
+sha256sums=('@SHA256@')
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -d "$pkgdir/usr"
+  cp -a bin share "$pkgdir/usr/"
+}

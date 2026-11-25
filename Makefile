@@ -28,6 +28,7 @@ lint: ## Lint and format checks, complexity, spelling, Markdown, REUSE, workflow
 	$(RUN) ruff format --check .
 	$(RUN) python scripts/check_complexity.py
 	$(RUN) python scripts/check_docs.py
+	$(RUN) python scripts/check_lock.py
 	$(RUN) codespell
 	$(RUN) reuse lint --quiet
 	$(NPX) $(MDLINT)
