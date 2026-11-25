@@ -74,11 +74,12 @@ jobs:
           python-version: "3.13"
       - name: Build the manual with warnings as errors
         run: make docs
-      - name: Check every link (lychee)
+      - name: Install lychee
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
-          args: --no-progress --exclude-path build/site/404.html --exclude "^https://github.com/sebastienrousseau/standards/(security/advisories/new|issues/new)" "*.md" "docs/**/*.md" "build/site/**/*.html"
-          fail: true
+          args: --version
+      - name: Check every link (make linkcheck, lychee.toml)
+        run: make linkcheck
 
   api:
     name: API breakage since the last release

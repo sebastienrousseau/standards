@@ -49,8 +49,12 @@ docs: ## Build the manual with warnings as errors, then check every page
 	rm -rf $(BUILD)/site && mkdir -p $(BUILD) && mv site $(BUILD)/site
 	$(RUN) python scripts/check_docs.py --site $(BUILD)/site
 
-linkcheck: docs ## Check every link in the docs and the built manual (network)
-	lychee --no-progress --exclude-path $(BUILD)/site/404.html '*.md' 'docs/**/*.md' '$(BUILD)/site/**/*.html'
+REMAP := --remap 'https://raw.githubusercontent.com/sebastienrousseau/standards/main/(.*) file://$(CURDIR)/$$1' \
+         --remap 'https://github.com/sebastienrousseau/standards/blob/main/(.*) file://$(CURDIR)/$$1' \
+         --remap 'https://sebastienrousseau.com/standards/(.*) file://$(CURDIR)/$(BUILD)/site/$$1'
+
+linkcheck: docs ## Check every link in the docs and the built manual (network; config in lychee.toml)
+	lychee $(REMAP) '*.md' 'docs/**/*.md' '$(BUILD)/site/**/*.html'
 
 api: ## Fail on a breaking change to sync.py's public API since the last release
 	$(RUN) python scripts/check_api.py

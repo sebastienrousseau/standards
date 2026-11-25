@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Shared by make linkcheck and CI. Both also remap this repository's main
+# branch and its published manual to the checkout and the built site, so a
+# pull request checks the files it would publish.
+
+no_progress = true
+index_files = ["index.html"]
+
+exclude = [
+  # Need a signed-in browser; anonymous requests get a redirect or a 404.
+  '^https://github\.com/sebastienrousseau/standards/(security/advisories/new|issues/new)',
+  # The CHANGELOG's compare links name a tag that exists only once that
+  # version is released.
+  '^https://github\.com/sebastienrousseau/standards/compare/',
+]
+
+exclude_path = [
+  # Templates: their links are placeholders or resolve in the repository
+  # that fills them in, not here.
+  "README-TEMPLATE.md",
+  "PR-TEMPLATE.md",
+  ".github/pull_request_template.md",
+  "build/site/404.html",
+]
