@@ -19,6 +19,7 @@ path = [
   ".devcontainer/devcontainer.json",
   ".github/demo.gif",
   ".github/logo.svg",
+  "fuzz/corpus/**",
   "docs/AGENTS.md",
   "docs/GEMINI.md",
   "docs/REPO-STANDARD.md",

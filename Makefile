@@ -14,7 +14,7 @@ BUILD    := build
 SHELLS   := bash zsh fish
 PYTHON   ?= python3
 
-.PHONY: help check lint fmt test fuzz docs linkcheck api audit man completions \
+.PHONY: help check lint fmt test fuzz fuzz-atheris smoke docs linkcheck api audit man completions \
         templates dist reproducible sbom demo clean
 
 help: ## List the tasks
@@ -47,6 +47,12 @@ smoke: ## End-to-end run of the command with the standard library only (PYTHON=p
 
 fuzz: ## Property-based fuzzing with the regression corpus
 	$(RUN) pytest fuzz
+
+FUZZ_RUNS ?= 200000
+
+fuzz-atheris: ## Coverage-guided fuzzing with Atheris (Linux x86-64, Python 3.12-3.14)
+	rm -rf $(BUILD)/corpus && mkdir -p $(BUILD) && cp -R fuzz/corpus $(BUILD)/corpus
+	$(RUN) python fuzz/fuzz_atheris.py -runs=$(FUZZ_RUNS) $(BUILD)/corpus
 
 docs: ## Build the manual with warnings as errors, then check every page
 	$(RUN) zensical build --strict --clean

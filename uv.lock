@@ -2,7 +2,8 @@ version = 1
 revision = 5
 requires-python = ">=3.9"
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
     "python_full_version >= '3.11' and python_full_version < '3.11.5'",
     "python_full_version == '3.10.*'",
     "python_full_version < '3.10'",
@@ -22,6 +23,16 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/93/1d/7cad52af343d6445fdfff5dfc603259ea4404f9cd55e30f2d0699a3b2836/argparse_manpage-4.8.tar.gz", hash = "sha256:d55ce1c246479ddd82871170a8cc543a6831bb68c87a298e47f0663a9330b74f", size = 59211, upload-time = "2026-10-14T08:40:44.822Z" }
+
+[[package]]
+name = "atheris"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0a/88/fd6ad595dafa9c7ce56dbfcaff0c7244988dac3af86c771166c6516ccf6b/atheris-3.1.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:ec5e11f21a4c197fe91f7aea2b2de88e623c73a21fc07b105ac6329a1588457b", size = 36875908, upload-time = "2026-06-17T00:04:01.104Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/18/e19718c384fd7d801d0da7485407daef9af6194b6d8c8818175bec5efec6/atheris-3.1.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f8a9f51ce8369026e8eb7b7174835e8c4c85a1a6db5d9add36c15100779d2a39", size = 36800563, upload-time = "2026-06-17T00:04:04.559Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/ff/ae7a5bfe99033e510bea4ed09934e636d93777317a48147369bc0dc2b71f/atheris-3.1.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:315a0b5c819852b1ffe1ca72efc389c7724881f2c33e4aacb8c6bcec49bd5011", size = 36772569, upload-time = "2026-06-17T00:04:07.702Z" },
+]
 
 [[package]]
 name = "attrs"
@@ -527,7 +538,8 @@ name = "coverage"
 version = "7.17.5"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
     "python_full_version >= '3.11' and python_full_version < '3.11.5'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b1/a8/6c44415a740290c66451e664bc42f835d65a17888be2bb17e87d6d7a27b8/coverage-7.17.5.tar.gz", hash = "sha256:4f41d35b798714a2e79ec2097d6b03c92cd3b7de58e422fce7a1ca2c0c25b276", size = 1009924, upload-time = "2026-11-23T13:54:57.93Z" }
@@ -731,7 +743,8 @@ name = "griffe"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
     "python_full_version >= '3.11' and python_full_version < '3.11.5'",
 ]
 dependencies = [
@@ -764,7 +777,8 @@ name = "griffecli"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
     "python_full_version >= '3.11' and python_full_version < '3.11.5'",
 ]
 dependencies = [
@@ -793,7 +807,8 @@ name = "griffelib"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
     "python_full_version >= '3.11' and python_full_version < '3.11.5'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/36/e2/0f5d8ed08766bc6dcd3eebf5a6623d83cbca33a6e4c90aef57156ce745ad/griffelib-2.4.1.tar.gz", hash = "sha256:40c028dd2e623f464423f0e11e3c553158f1cf4f1368239a370534d73e1407ff", size = 245153, upload-time = "2026-10-22T11:20:03.705Z" }
@@ -905,7 +920,8 @@ name = "hypothesis"
 version = "6.170.17"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
     "python_full_version >= '3.11' and python_full_version < '3.11.5'",
 ]
 dependencies = [
@@ -1577,7 +1593,8 @@ name = "pymdown-extensions"
 version = "13.1.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5'",
+    "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+    "python_full_version >= '3.15' or (python_full_version >= '3.11.5' and python_full_version < '3.12') or (python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and python_full_version < '3.15' and sys_platform != 'linux')",
 ]
 dependencies = [
     { name = "markdown" },
@@ -1863,6 +1880,7 @@ source = { editable = "." }
 [package.dev-dependencies]
 dev = [
     { name = "argparse-manpage", marker = "python_full_version >= '3.10'" },
+    { name = "atheris", marker = "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "codespell", marker = "python_full_version >= '3.10'" },
     { name = "complexipy", marker = "python_full_version >= '3.10'" },
     { name = "coverage", version = "7.16.2", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version == '3.10.*'" },
@@ -1889,6 +1907,7 @@ dev = ">=3.10"
 [package.metadata.requires-dev]
 dev = [
     { name = "argparse-manpage", marker = "python_full_version >= '3.10'", specifier = ">=4.7" },
+    { name = "atheris", marker = "python_full_version >= '3.12' and python_full_version < '3.15' and platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = ">=3.1" },
     { name = "codespell", marker = "python_full_version >= '3.10'", specifier = ">=2.4" },
     { name = "complexipy", marker = "python_full_version >= '3.10'", specifier = ">=4.0" },
     { name = "coverage", extras = ["toml"], marker = "python_full_version >= '3.10'", specifier = ">=7.6" },
