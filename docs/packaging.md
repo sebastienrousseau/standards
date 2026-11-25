@@ -19,6 +19,10 @@ For anyone packaging `standards-sync`.
   parser at build time; none is committed.
 - **Tests**: `python3 -m pytest tests` needs only `pytest` and `git`, and
   no network.
+- **Source**: from 0.0.8 the wheel and sdist of each release are also on
+  [PyPI](https://pypi.org/project/standards-sync/), uploaded by the
+  release workflow with trusted publishing; they are the same files as
+  the GitHub release assets.
 - **Verification**: tags are SSH-signed with the keys in `KEYS.asc`;
   release assets carry SHA-256 sums and build provenance. See
   [Verifying releases](VERIFYING.md).
