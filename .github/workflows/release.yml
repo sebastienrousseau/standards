@@ -92,7 +92,7 @@ jobs:
           version="${TAG#v}"
           SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
           export SOURCE_DATE_EPOCH
-          make pkg
+          make pkg SDIST="release/standards_sync-${version}.tar.gz"
           root="build/pkg/deb/standards-sync_${version}-1_all"
           dpkg-deb --root-owner-group --build "$root" "release/standards-sync_${version}-1_all.deb"
           docker run --rm -e SOURCE_DATE_EPOCH -v "$PWD/build/pkg:/pkg" "$FEDORA" bash -euxc '

@@ -29,3 +29,20 @@ The project has one maintainer, so its bus factor is 1, and no second
 person yet holds the access needed to merge, release or answer reports.
 This is a known gap; an arrangement for it will be recorded here when it
 exists.
+
+### When a second maintainer joins
+
+The maintainer invites them, and they are given, in one change recorded
+in this file:
+
+- the GitHub `maintain` role on this repository and a line in
+  `.github/CODEOWNERS`;
+- their SSH signing key in `KEYS.asc`, so their tags and commits verify;
+- owner on the [PyPI project](https://pypi.org/project/standards-sync/),
+  co-maintainer of the [AUR package](https://aur.archlinux.org/packages/standards-sync),
+  write access to the [Homebrew tap](https://github.com/sebastienrousseau/homebrew-tap),
+  and editor on the [OpenSSF Best Practices entry](https://www.bestpractices.dev/projects/17104);
+- the security contact in `SECURITY.md`, alongside the maintainer.
+
+From then on every pull request into `main` needs one approving review
+from the maintainer who did not write it, enforced by a branch ruleset.

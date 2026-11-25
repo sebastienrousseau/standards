@@ -271,14 +271,17 @@ jobs:
         with:
           # nixos-26.05, pinned by commit
           nix_path: nixpkgs=https://github.com/NixOS/nixpkgs/archive/0dc498bfe49baeb18b0f9891e800b53bb2603193.tar.gz
-      - name: nix-build package.nix
+      - name: nix-build package.nix (from the sdist, tests included)
         run: |
-          # The release URL does not exist before the tag; add the tarball
-          # to the store under its hash so fetchurl finds it there.
-          nix-store --add-fixed sha256 build/pkg/standards-sync-*-unix.tar.gz
+          # This version's sdist is not on PyPI before the tag; add it to
+          # the store under its hash so fetchPypi finds it there.
+          nix-store --add-fixed sha256 build/pkg/sdist/standards_sync-*.tar.gz
           nix-build -E 'with import <nixpkgs> { }; callPackage ./build/pkg/nix/package.nix { }'
           ./result/bin/standards-sync --help
           test -s result/share/man/man1/standards-sync.1.gz
+          test -s result/share/zsh/site-functions/_standards-sync
+      - name: nixfmt, as nixpkgs' CI requires
+        run: nix-shell -p nixfmt-rfc-style --run 'nixfmt --check build/pkg/nix/package.nix'
 
   devcontainer:
     name: Dev container boots to make test

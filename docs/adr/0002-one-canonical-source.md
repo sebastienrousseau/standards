@@ -3,7 +3,8 @@
 
 # 0002: One canonical source, synced by a single-file script
 
-**Status**: Accepted, 2026-11-25 (recording the design shipped in 0.0.2).
+**Status**: Accepted, 2026-11-25 (recording the design shipped in 0.0.2);
+amended by [0006](0006-a-package-when-sync-grows.md).
 
 ## Context
 

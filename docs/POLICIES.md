@@ -78,8 +78,14 @@ them is a breaking change and is called out in the CHANGELOG:
 - **Python API**: the public functions of `scripts/sync.py`, checked
   against the last release by `make api`.
 
-An option or status word to be removed keeps working, with a warning on
-standard error, for at least one release before it goes.
+A deprecation comes before any removal or change of the contract above.
+The deprecated option, status word or behaviour keeps working, with a
+warning on standard error, and is listed in
+[DEPRECATIONS.md](https://github.com/sebastienrousseau/standards/blob/main/DEPRECATIONS.md)
+with what replaces it, the release that deprecated it and a removal date.
+That date is at least 90 days after the deprecating release; the change
+ships in the first release on or after it, and in a later release than
+the one that announced it, never earlier.
 
 For the standards themselves, a release is the unit of change: a
 repository that follows `v0.0.3` of the standards follows the files at
