@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/sebastienrousseau/standards/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/standards/ci.yml?style=for-the-badge&logo=github" alt="Build" height="28" /></a>
-  <a href="https://github.com/sebastienrousseau/standards/releases"><img src="https://img.shields.io/github/v/release/sebastienrousseau/standards?style=for-the-badge&color=fc8d62&logo=github" alt="Release" height="28" /></a>
+  <a href="https://pypi.org/project/standards-sync/"><img src="https://img.shields.io/pypi/v/standards-sync?style=for-the-badge&color=fc8d62&logo=python" alt="Registry" height="28" /></a>
   <a href="https://sebastienrousseau.com/standards/"><img src="https://img.shields.io/badge/docs-manual-blue?style=for-the-badge&labelColor=555555&logo=materialformkdocs" alt="Docs" height="28" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/standards"><img src="https://img.shields.io/ossf-scorecard/github.com/sebastienrousseau/standards?style=for-the-badge&label=OpenSSF%20Scorecard&logo=openssf" alt="OpenSSF Scorecard" height="28" /></a>
   <a href="#license"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg?style=for-the-badge" alt="License: Apache-2.0 OR MIT" height="28" /></a>
@@ -30,7 +30,7 @@
 
 **Getting started**
 
-- [Install](#install): `uv tool install`, `make install`, or the dotfiles
+- [Install](#install): from PyPI, `make install`, or the dotfiles
 - [Requirements](#requirements): toolchain floor, platforms
 - [Quick Start](#quick-start): push the standards to a scratch directory and check them
 
@@ -63,11 +63,13 @@
 ### As a Python library
 
 ```bash
-uv tool install git+https://github.com/sebastienrousseau/standards
+uv tool install standards-sync      # or: pipx install standards-sync
 ```
 
-This installs the `standards-sync` command; its functions are importable
-as `standards_sync`.
+This installs the `standards-sync` command from
+[PyPI](https://pypi.org/project/standards-sync/); its functions are
+importable as `standards_sync`. The upload is made by trusted publishing
+and carries build provenance ([Verifying releases](docs/VERIFYING.md)).
 
 From a clone, with the manpage and bash, zsh and fish completions:
 

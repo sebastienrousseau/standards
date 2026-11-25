@@ -55,3 +55,16 @@ gh attestation verify standards_sync-0.0.3.tar.gz --repo sebastienrousseau/stand
 
 The CycloneDX SBOM, `standards-sync.cdx.json`, lists the locked
 dependency tree the release was built and tested with.
+
+## PyPI
+
+From 0.0.8, the wheel and sdist on
+[PyPI](https://pypi.org/project/standards-sync/) are the same files as
+the release assets, so their hashes match `SHA256SUMS`. The release
+workflow uploads them by trusted publishing, and PyPI keeps a digital
+attestation (PEP 740) tying each file to that workflow:
+
+```bash
+uvx pypi-attestations verify pypi --repository https://github.com/sebastienrousseau/standards \
+  pypi:standards_sync-0.0.8-py3-none-any.whl
+```
