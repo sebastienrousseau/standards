@@ -7,6 +7,14 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.11] - 2026-11-25
+
+### Changed
+
+- Dependencies: the dev container's base image moves from Python 3.13 to
+  3.15 (Dependabot #16), and `cachix/install-nix-action`, which builds the
+  Nix package in CI, from 31.11.3 to 32.0.0 (Dependabot #17).
+
 ## [0.0.10] - 2026-11-25
 
 ### Added
@@ -222,6 +230,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.11]: https://github.com/sebastienrousseau/standards/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/sebastienrousseau/standards/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/sebastienrousseau/standards/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/sebastienrousseau/standards/compare/v0.0.7...v0.0.8
