@@ -89,6 +89,8 @@ the targets, the hooks and the clone directly.
   (`fuzz/`); an end-to-end smoke test on the minimum Python.
 - CodeQL and ruff's security rules on every push; OpenSSF Scorecard
   weekly and on every push to `main`.
+- The [OpenSSF Best Practices passing badge](https://www.bestpractices.dev/projects/17104),
+  with each criterion's evidence recorded there.
 - [SECURITY.md](https://github.com/sebastienrousseau/standards/blob/main/SECURITY.md)
   for reporting, and [Verifying releases](VERIFYING.md) for checking what
   you download.

@@ -7,6 +7,21 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.7] - 2026-11-25
+
+### Added
+
+- The README and the assurance case link the project's OpenSSF Best
+  Practices passing badge, where every criterion's evidence is recorded.
+
+### Fixed
+
+- A `STANDARDS_TARGETS` entry that is blank only once `Path` normalises
+  it, such as `./ /` (a directory named by one space), is now ignored
+  like any other blank entry instead of becoming a target. Found by the
+  Atheris fuzzer on pull request #12; the input joins the corpus and
+  the Hypothesis examples.
+
 ## [0.0.6] - 2026-11-25
 
 ### Added
@@ -168,6 +183,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.7]: https://github.com/sebastienrousseau/standards/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/sebastienrousseau/standards/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/sebastienrousseau/standards/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/sebastienrousseau/standards/compare/v0.0.3...v0.0.4

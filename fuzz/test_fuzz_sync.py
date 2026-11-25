@@ -33,6 +33,7 @@ PATH_TEXT = st.text(st.characters(blacklist_categories=("Cs",), blacklist_charac
 @example(os.pathsep)
 @example(f" {os.pathsep} ")
 @example("/")
+@example(f"/  /{os.pathsep} ./ /{os.pathsep}")  # Atheris, PR #12: normalises to Path(" ")
 @settings(max_examples=300, deadline=None)
 def test_env_targets_never_yield_blank_entries(value: str) -> None:
     targets = sync._env_targets(value)
