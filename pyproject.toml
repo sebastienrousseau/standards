@@ -3,7 +3,7 @@
 
 [project]
 name = "standards-sync"
-version = "0.0.3"
+version = "0.0.4"
 description = "Keep the canonical code standards in sync with the workspace root and dotfiles copies."
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
@@ -44,9 +44,7 @@ dev = [
   # pip-audit pulls in filelock, and no filelock release before 4.2.1
   # (Python 3.11+) is free of GitHub advisories; the audit runs on 3.13.
   "pip-audit>=2.7; python_version >= '3.11'",
-  # No pytest release free of GHSA-6w46-j5rx-g56g (fixed in 9.0.3) supports
-  # Python 3.9; the floor is checked there by tests/smoke.py instead.
-  "pytest>=9.0.3; python_version >= '3.10'",
+  "pytest>=9.0.3",
   "radon>=6.0",
   "reuse[charset-normalizer]>=5.0",
   "ruff>=0.8",
@@ -119,3 +117,9 @@ default-groups = ["dev"]
 # fixed in 4.2.1) and pytest before 9.0.3 (GHSA-6w46-j5rx-g56g). No
 # affected version may resolve, in any environment.
 constraint-dependencies = ["filelock>=4.2.1", "pytest>=9.0.3"]
+
+# The dev tools need Python 3.10 or later: no pytest free of
+# GHSA-6w46-j5rx-g56g, and no current griffe, supports 3.9. The command
+# itself keeps its 3.9 floor, checked by tests/smoke.py with no tools.
+[tool.uv.dependency-groups]
+dev = { requires-python = ">=3.10" }

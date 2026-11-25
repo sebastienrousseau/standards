@@ -17,7 +17,9 @@ RHEL 9 also ships 3.9. Python 3.9 itself is past its upstream end of life.
 offers. CI proves the floor by running the command end to end on 3.9
 with `tests/smoke.py`, which needs only the standard library: since
 GHSA-6w46-j5rx-g56g, fixed in pytest 9.0.3, no safe pytest supports 3.9,
-so the full suite runs on 3.10 and the newest CPython.
+so the full suite runs on 3.10 and the newest CPython. The dev tools
+declare that floor themselves (`[tool.uv.dependency-groups]`), so the
+lockfile never resolves them for 3.9.
 
 ## Consequences
 

@@ -7,6 +7,18 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.4] - 2026-11-25
+
+### Changed
+
+- The dev tools declare their own floor, Python 3.10
+  (`[tool.uv.dependency-groups]`), so `uv.lock` no longer resolves them for
+  3.9. Dependabot's `uv` update had failed there: griffe 2.3 needs 3.10.
+  `standards-sync` keeps its 3.9 floor, checked by `tests/smoke.py`.
+- Dependencies: `astral-sh/setup-uv` 10.3.3 to 10.4.0, `ossf/scorecard-action`
+  to its latest release, and the dev container's Node feature 1.7.1 to
+  2.1.2 (Dependabot #6 and #7); `uv lock --upgrade` for the dev tools.
+
 ## [0.0.3] - 2026-11-25
 
 ### Added
@@ -116,6 +128,7 @@ All notable changes to Standards are recorded here, in the form of
 - Canonical README Standard (`README-TEMPLATE.md`).
 - Repository Gold Standard (`REPO-STANDARD.md`).
 
+[0.0.4]: https://github.com/sebastienrousseau/standards/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/sebastienrousseau/standards/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/sebastienrousseau/standards/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/sebastienrousseau/standards/releases/tag/v0.0.1
