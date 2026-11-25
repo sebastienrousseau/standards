@@ -13,8 +13,11 @@ RHEL 9 also ships 3.9. Python 3.9 itself is past its upstream end of life.
 
 ## Decision
 
-`requires-python = ">=3.9"`, and CI runs the suite on 3.9 and on the
-newest CPython. The code uses nothing newer than 3.9 offers.
+`requires-python = ">=3.9"`. The code uses nothing newer than 3.9
+offers. CI proves the floor by running the command end to end on 3.9
+with `tests/smoke.py`, which needs only the standard library: since
+GHSA-6w46-j5rx-g56g, fixed in pytest 9.0.3, no safe pytest supports 3.9,
+so the full suite runs on 3.10 and the newest CPython.
 
 ## Consequences
 

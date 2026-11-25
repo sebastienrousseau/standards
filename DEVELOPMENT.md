@@ -26,6 +26,7 @@ The dev container (`.devcontainer/`) boots with the same tools.
 | `make lint` | ruff lint and format, complexity ceilings, docs consistency, codespell, REUSE, markdownlint, actionlint, em dashes |
 | `make test` | the unit tests, with branch coverage at 95 percent or more |
 | `make fuzz` | property-based fuzzing and its regression corpus |
+| `make smoke` | the command end to end, standard library only; `PYTHON=python3.9` checks the floor |
 | `make docs` | the manual, built strict, and the author link on every page |
 | `make api` | no breaking change to `sync.py`'s public API since the last release |
 | `make audit` | pip-audit over every locked dependency |

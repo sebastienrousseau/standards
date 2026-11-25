@@ -12,6 +12,7 @@ MDLINT   := markdownlint-cli2@0.24.1
 VERSION  := $(shell sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
 BUILD    := build
 SHELLS   := bash zsh fish
+PYTHON   ?= python3
 
 .PHONY: help check lint fmt test fuzz docs linkcheck api audit man completions \
         templates dist reproducible sbom demo clean
@@ -19,7 +20,7 @@ SHELLS   := bash zsh fish
 help: ## List the tasks
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
 
-check: lint test fuzz docs api audit reproducible ## Run every gate CI runs
+check: lint test fuzz smoke docs api audit reproducible ## Run every gate CI runs
 	@echo "make check: all gates passed"
 
 lint: ## Lint and format checks, complexity, spelling, Markdown, REUSE, workflows, docs
@@ -40,6 +41,9 @@ fmt: ## Format the Python sources
 test: ## Unit tests with the coverage gate
 	$(RUN) coverage run -m pytest tests
 	$(RUN) coverage report
+
+smoke: ## End-to-end run of the command with the standard library only (PYTHON=python3.9 for the floor)
+	$(PYTHON) tests/smoke.py
 
 fuzz: ## Property-based fuzzing with the regression corpus
 	$(RUN) pytest fuzz

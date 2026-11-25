@@ -48,7 +48,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.9", "3.15"]
+        python-version: ["3.10", "3.15"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -61,6 +61,23 @@ jobs:
         run: make test
       - name: Fuzz corpus replay and property tests
         run: make fuzz
+
+  floor:
+    name: Python 3.9 floor, end to end (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - name: Smoke test on Python 3.9 (standard library only)
+        run: |
+          uv python install 3.9
+          make smoke PYTHON="$(uv python find 3.9)"
 
   docs:
     name: Manual (strict build) and link check
@@ -167,7 +184,7 @@ jobs:
   validate:
     name: validate
     if: always()
-    needs: [lint, test, docs, api, supply-chain, dependency-review, install, devcontainer]
+    needs: [lint, test, floor, docs, api, supply-chain, dependency-review, install, devcontainer]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped

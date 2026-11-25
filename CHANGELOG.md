@@ -27,7 +27,7 @@ All notable changes to Standards are recorded here, in the form of
   heading order with no unresolved tokens, the GitHub PR template to
   `PR-TEMPLATE.md`, the version carriers to one version, every document
   to `gh`'s real `name` field, and every manual page to the author link.
-- CI on Linux and macOS with Python 3.9 and 3.15, plus the README Quick
+- CI on Linux and macOS with Python 3.10 and 3.15 and a 3.9 smoke test, plus the README Quick
   Start run as written, a staged install, the dev container, a link
   check, dependency review, and a `validate` job that requires them all.
 - A manual built with Zensical and deployed to GitHub Pages by Actions,
@@ -85,6 +85,10 @@ All notable changes to Standards are recorded here, in the form of
   constraint requires `filelock>=4.2.1` in every environment, and
   `pip-audit`, which pulls it in, installs only on Python 3.11 or later,
   as no fixed release supports older versions. pip-audit now queries OSV.
+- Likewise `pytest>=9.0.3` (GHSA-6w46-j5rx-g56g). The fixed pytest needs
+  Python 3.10, so the suite runs on 3.10 and 3.15, and the 3.9 floor is
+  checked end to end by `tests/smoke.py`, which needs only the standard
+  library. An OSV query over every version in `uv.lock` finds nothing else.
 - Markdown lint findings across the standards: list spacing, a fenced
   block without a language, a table style, a code span with a trailing
   space.

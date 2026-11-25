@@ -25,8 +25,10 @@ system `/usr/bin/python3`, which is 3.9.
 | Ubuntu 24.04 LTS | 3.12 | yes |
 | Debian 13 | 3.13 | yes |
 
-CI runs the test suite on the floor and on the newest CPython release,
-on both Linux and macOS. The floor rises only when the macOS system
+CI runs the test suite on Python 3.10 and on the newest CPython release,
+and an end-to-end smoke test (`tests/smoke.py`, standard library only)
+on 3.9, all on both Linux and macOS. The full suite cannot run on 3.9:
+no pytest release free of GHSA-6w46-j5rx-g56g supports it. The floor rises only when the macOS system
 Python does, in a release whose CHANGELOG says so.
 
 ## Stability guarantees
