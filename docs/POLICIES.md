@@ -31,6 +31,31 @@ on 3.9, all on both Linux and macOS. The full suite cannot run on 3.9:
 no pytest release free of GHSA-6w46-j5rx-g56g supports it. The floor rises only when the macOS system
 Python does, in a release whose CHANGELOG says so.
 
+## Dependencies
+
+`standards-sync` has no runtime dependencies. The development tools are
+held to this provenance policy, which `scripts/check_lock.py` enforces in
+`make lint`:
+
+- **One source.** Every package in `uv.lock` comes from PyPI; a git, URL
+  or path source fails the check.
+- **Hashed.** Every sdist and wheel in `uv.lock` carries its SHA-256, and
+  uv verifies it on install.
+- **Installed as locked.** Every `uv run` and `uv sync` in the Makefiles
+  and workflows is `--frozen` or `--locked`, so nothing is re-resolved.
+- **Advisories.** `pip-audit` checks every locked version against OSV in
+  `make check`, dependency review checks every pull request, and a
+  version with a published advisory is excluded in `pyproject.toml`
+  (`constraint-dependencies`) so it cannot resolve.
+- **Updates** come from Dependabot, as pull requests that go through the
+  same gate.
+- **A new dependency** is added in its own commit that says why it is
+  needed and who maintains it, and is preferred when it publishes
+  attestations from trusted publishing.
+- **Everything else is pinned too**: Actions by commit SHA, container
+  images by digest (the dev container's base, and the Fedora and Arch
+  images that build and test the packages).
+
 ## Stability guarantees
 
 For `standards-sync`, these are the public contract. A change to any of
