@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/sebastienrousseau/standards/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/standards/ci.yml?style=for-the-badge&logo=github" alt="Build" height="28" /></a>
   <a href="https://github.com/sebastienrousseau/standards/releases"><img src="https://img.shields.io/github/v/release/sebastienrousseau/standards?style=for-the-badge&color=fc8d62&logo=github" alt="Release" height="28" /></a>
-  <a href="https://sebastienrousseau.github.io/standards/"><img src="https://img.shields.io/badge/docs-manual-blue?style=for-the-badge&labelColor=555555&logo=materialformkdocs" alt="Docs" height="28" /></a>
+  <a href="https://sebastienrousseau.com/standards/"><img src="https://img.shields.io/badge/docs-manual-blue?style=for-the-badge&labelColor=555555&logo=materialformkdocs" alt="Docs" height="28" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/standards"><img src="https://img.shields.io/ossf-scorecard/github.com/sebastienrousseau/standards?style=for-the-badge&label=OpenSSF%20Scorecard&logo=openssf" alt="OpenSSF Scorecard" height="28" /></a>
   <a href="#license"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg?style=for-the-badge" alt="License: Apache-2.0 OR MIT" height="28" /></a>
   <a href="https://github.com/sebastienrousseau/standards/blob/main/docs/POLICIES.md"><img src="https://img.shields.io/badge/Python-3.9%2B-93450a.svg?style=for-the-badge&logo=python" alt="Python 3.9 or later" height="28" /></a>
@@ -235,7 +235,7 @@ Report vulnerabilities according to [`SECURITY.md`](SECURITY.md).
 
 ## Documentation
 
-- [User manual](https://sebastienrousseau.github.io/standards/): the standards and `standards-sync`
+- [User manual](https://sebastienrousseau.com/standards/): the standards and `standards-sync`
 - `man standards-sync`, after `make install`
 - [DEVELOPMENT.md](DEVELOPMENT.md): tools, the gate, tests, releases
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the [decision records](docs/adr/index.md)

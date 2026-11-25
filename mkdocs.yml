@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 site_name: standards
 site_description: The code standards every repository by Sebastien Rousseau follows, and the tool that keeps them in sync.
-site_url: https://sebastienrousseau.github.io/standards/
+site_url: https://sebastienrousseau.com/standards/
 repo_url: https://github.com/sebastienrousseau/standards
 edit_uri: blob/main/docs/
 copyright: '&copy; 2026 <a href="https://sebastienrousseau.com/" rel="author">Sebastien Rousseau</a>'
