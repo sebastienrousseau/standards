@@ -1,41 +1,77 @@
-# The nixpkgs expression: callPackage ./package.nix { }
+# The nixpkgs expression (pkgs/by-name/st/standards-sync/package.nix),
+# built from the PyPI sdist; CI builds it with callPackage against nixpkgs.
 {
   lib,
-  stdenvNoCC,
-  fetchurl,
-  makeWrapper,
-  python3,
+  python3Packages,
+  fetchPypi,
+  installShellFiles,
   git,
 }:
 
-stdenvNoCC.mkDerivation (finalAttrs: {
+python3Packages.buildPythonApplication rec {
   pname = "standards-sync";
   version = "@VERSION@";
+  pyproject = true;
 
-  src = fetchurl {
-    url = "@URL@";
-    hash = "@SRI@";
+  src = fetchPypi {
+    pname = "standards_sync";
+    inherit version;
+    hash = "@SDIST_SRI@";
   };
 
-  nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ python3 ];
+  build-system = [ python3Packages.hatchling ];
 
-  installPhase = ''
-    runHook preInstall
-    mkdir -p $out
-    cp -r bin share $out/
-    wrapProgram $out/bin/standards-sync --prefix PATH : ${lib.makeBinPath [ git ]}
-    runHook postInstall
+  nativeBuildInputs = [
+    installShellFiles
+    python3Packages.argparse-manpage
+    python3Packages.shtab
+  ];
+
+  # The sync check compares against every version the standards repository
+  # committed, with git.
+  makeWrapperArgs = [
+    "--prefix"
+    "PATH"
+    ":"
+    (lib.makeBinPath [ git ])
+  ];
+
+  postInstall = ''
+    argparse-manpage --pyfile scripts/sync.py --function build_parser \
+      --prog standards-sync --project-name standards --version ${version} \
+      --author "Sebastien Rousseau" --manual-title "standards-sync manual" \
+      --description "keep the code standards in sync" \
+      --url ${meta.homepage} --output standards-sync.1
+    installManPage standards-sync.1
+    for shell in bash zsh fish; do
+      PYTHONPATH=scripts shtab --shell=$shell --prog standards-sync sync.build_parser > standards-sync.$shell
+    done
+    installShellCompletion --cmd standards-sync \
+      --bash standards-sync.bash --zsh standards-sync.zsh --fish standards-sync.fish
   '';
+
+  nativeCheckInputs = [
+    python3Packages.pytestCheckHook
+    python3Packages.hypothesis
+    git
+  ];
+
+  enabledTestPaths = [
+    "tests/test_sync.py"
+    "fuzz/test_fuzz_sync.py"
+  ];
+
+  pythonImportsCheck = [ "standards_sync" ];
 
   meta = {
     description = "Keep the code standards in sync without losing edits";
     homepage = "https://github.com/sebastienrousseau/standards";
+    changelog = "https://github.com/sebastienrousseau/standards/blob/v${version}/CHANGELOG.md";
     license = with lib.licenses; [
       asl20
       mit
     ];
+    maintainers = @MAINTAINERS@;
     mainProgram = "standards-sync";
-    platforms = lib.platforms.unix;
   };
-})
+}

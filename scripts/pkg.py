@@ -110,7 +110,27 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", type=Path, required=True, help="where to write the tarball and the recipes")
     parser.add_argument("--templates", type=Path, default=ROOT / "pkg", help="the pkg/ template directory")
     parser.add_argument("--url-base", help=f"where the tarball is served (default: {RELEASES}/v<version>)")
+    parser.add_argument("--sdist", type=Path, required=True, help="the sdist the Nix expression builds from")
+    parser.add_argument("--maintainers", default="[ ]", help="the Nix expression's maintainers (default: [ ])")
     return parser
+
+
+def _sri(digest: bytes) -> str:
+    return "sha256-" + base64.b64encode(digest).decode()
+
+
+def template_values(args: argparse.Namespace, version: str, tarball: Path) -> dict[str, str]:
+    """The values the recipes' @TOKENS@ take, from the tarball and the sdist."""
+    digest = hashlib.sha256(tarball.read_bytes()).digest()
+    return {
+        "VERSION": version,
+        "TARBALL": tarball.name,
+        "URL": f"{args.url_base or f'{RELEASES}/v{version}'}/{tarball.name}",
+        "SHA256": digest.hex(),
+        "SRI": _sri(digest),
+        "SDIST_SRI": _sri(hashlib.sha256(args.sdist.read_bytes()).digest()),
+        "MAINTAINERS": args.maintainers,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -123,15 +143,7 @@ def main(argv: list[str] | None = None) -> int:
     tarball = args.out / f"{NAME}-{version}-unix.tar.gz"
     args.out.mkdir(parents=True, exist_ok=True)
     write_tarball(tree, tarball, int(os.environ.get("SOURCE_DATE_EPOCH", "0")))
-    digest = hashlib.sha256(tarball.read_bytes()).digest()
-    values = {
-        "VERSION": version,
-        "TARBALL": tarball.name,
-        "URL": f"{args.url_base or f'{RELEASES}/v{version}'}/{tarball.name}",
-        "SHA256": digest.hex(),
-        "SRI": "sha256-" + base64.b64encode(digest).decode(),
-    }
-    for path in render_templates(args.templates, args.out, values):
+    for path in render_templates(args.templates, args.out, template_values(args, version, tarball)):
         print(path)
     print(deb_root(tree, args.out, version))
     print(tarball)

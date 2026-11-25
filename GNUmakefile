@@ -37,7 +37,8 @@ uninstall: ## Remove what install put under DESTDIR/PREFIX
 
 # The distribution packages' inputs (scripts/pkg.py): the tree that install
 # writes, with the licences, packed as standards-sync-<v>-unix.tar.gz, and
-# the recipes in pkg/ rendered against it, in build/pkg.
+# the recipes in pkg/ rendered against it and the sdist (SDIST=, or built
+# here), in build/pkg.
 PKG_STAGE := $(BUILD)/pkg/stage
 
 pkg: DESTDIR = $(PKG_STAGE)
@@ -45,7 +46,9 @@ pkg: PREFIX = /standards-sync-$(VERSION)
 pkg: clean-pkg install ## Package tarball, deb root, rpm spec, PKGBUILD, Homebrew formula, Nix expression
 	$(INSTALL) -d $(PKG_STAGE)$(PREFIX)/share/licenses/standards-sync
 	$(INSTALL) -m 644 LICENSE-APACHE LICENSE-MIT $(PKG_STAGE)$(PREFIX)/share/licenses/standards-sync/
-	$(RUN) python scripts/pkg.py --stage $(PKG_STAGE) --out $(BUILD)/pkg $(if $(URL_BASE),--url-base $(URL_BASE))
+	$(if $(SDIST),,$(UV) build -q --sdist --out-dir $(BUILD)/pkg/sdist)
+	$(RUN) python scripts/pkg.py --stage $(PKG_STAGE) --out $(BUILD)/pkg $(if $(URL_BASE),--url-base $(URL_BASE)) \
+	  --sdist $(or $(SDIST),$(BUILD)/pkg/sdist/standards_sync-$(VERSION).tar.gz)
 
 .PHONY: clean-pkg
 clean-pkg:

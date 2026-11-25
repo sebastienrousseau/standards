@@ -24,7 +24,21 @@ def stage(tmp_path: Path) -> Path:
     licences = tree / "share" / "licenses" / "standards-sync"
     licences.mkdir(parents=True)
     (licences / "LICENSE-MIT").write_text("MIT\n", encoding="utf-8")
+    (tmp_path / "sdist.tar.gz").write_bytes(b"an sdist")
     return tmp_path / "stage"
+
+
+def args(tmp_path: Path, *extra: str) -> list[str]:
+    """pkg.py's arguments for a staged tree in tmp_path."""
+    return [
+        "--stage",
+        str(stage(tmp_path)),
+        "--out",
+        str(tmp_path / "out"),
+        "--sdist",
+        str(tmp_path / "sdist.tar.gz"),
+        *extra,
+    ]
 
 
 def test_project_version_reads_pyproject(tmp_path: Path) -> None:
@@ -60,14 +74,16 @@ def test_render_fills_tokens_and_rejects_unknown_ones() -> None:
 def test_main_renders_every_recipe_against_the_tarball(tmp_path: Path, monkeypatch, capsys) -> None:
     monkeypatch.setenv("SOURCE_DATE_EPOCH", "86400")
     out = tmp_path / "out"
-    assert pkg.main(["--stage", str(stage(tmp_path)), "--out", str(out), "--url-base", "file:///srv"]) == 0
+    assert pkg.main(args(tmp_path, "--url-base", "file:///srv")) == 0
     tarball = out / f"standards-sync-{VERSION}-unix.tar.gz"
     digest = hashlib.sha256(tarball.read_bytes()).digest()
     brew = (out / "brew" / "standards-sync.rb").read_text(encoding="utf-8")
     assert f'url "file:///srv/{tarball.name}"' in brew
     assert f'sha256 "{digest.hex()}"' in brew
     nix = (out / "nix" / "package.nix").read_text(encoding="utf-8")
-    assert f'hash = "sha256-{base64.b64encode(digest).decode()}"' in nix
+    sdist = base64.b64encode(hashlib.sha256(b"an sdist").digest()).decode()
+    assert f'hash = "sha256-{sdist}"' in nix
+    assert "maintainers = [ ];" in nix
     assert f'source=("{tarball.name}::file:///srv/{tarball.name}")' in (out / "aur" / "PKGBUILD").read_text()
     assert f"Version:        {VERSION}\n" in (out / "rpm" / "standards-sync.spec").read_text()
     assert str(tarball) in capsys.readouterr().out
@@ -75,7 +91,7 @@ def test_main_renders_every_recipe_against_the_tarball(tmp_path: Path, monkeypat
 
 def test_main_prepares_the_deb_root(tmp_path: Path) -> None:
     out = tmp_path / "out"
-    pkg.main(["--stage", str(stage(tmp_path)), "--out", str(out)])
+    pkg.main(args(tmp_path))
     root = out / "deb" / f"standards-sync_{VERSION}-1_all"
     assert f"Version: {VERSION}-1\n" in (root / "DEBIAN" / "control").read_text()
     assert (root / "usr" / "share" / "doc" / "standards-sync" / "copyright").is_file()
@@ -85,11 +101,17 @@ def test_main_prepares_the_deb_root(tmp_path: Path) -> None:
 
 def test_main_defaults_to_the_release_url(tmp_path: Path) -> None:
     out = tmp_path / "out"
-    pkg.main(["--stage", str(stage(tmp_path)), "--out", str(out)])
+    pkg.main(args(tmp_path))
     url = f"{pkg.RELEASES}/v{VERSION}/standards-sync-{VERSION}-unix.tar.gz"
     assert f'url "{url}"' in (out / "brew" / "standards-sync.rb").read_text()
 
 
+def test_main_names_the_nix_maintainers(tmp_path: Path) -> None:
+    pkg.main(args(tmp_path, "--maintainers", "with lib.maintainers; [ someone ]"))
+    nix = (tmp_path / "out" / "nix" / "package.nix").read_text()
+    assert "maintainers = with lib.maintainers; [ someone ];" in nix
+
+
 def test_main_needs_the_staged_tree(tmp_path: Path) -> None:
     with pytest.raises(SystemExit, match="run make pkg"):
-        pkg.main(["--stage", str(tmp_path), "--out", str(tmp_path / "out")])
+        pkg.main(["--stage", str(tmp_path), "--out", str(tmp_path / "out"), "--sdist", str(tmp_path / "x")])

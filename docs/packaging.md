@@ -41,7 +41,7 @@ and SHA-256 into `build/pkg/`. Nothing generated is committed.
 | Fedora, RHEL | `pkg/rpm/standards-sync.spec` | Fedora 44, with `rpmbuild` and `dnf` | the `.noarch.rpm` and the spec |
 | Arch (AUR) | `pkg/aur/PKGBUILD`, `.SRCINFO` | Arch, with `makepkg` and `pacman`; `.SRCINFO` must match `makepkg --printsrcinfo` | `PKGBUILD`, `SRCINFO` |
 | Homebrew | `pkg/brew/standards-sync.rb` | macOS, `brew install` and `brew test` | `standards-sync.rb` |
-| Nix | `pkg/nix/package.nix` | nixpkgs 26.05, `nix-build` | `standards-sync.nix` |
+| Nix | `pkg/nix/package.nix`, built from the PyPI sdist as nixpkgs does | nixpkgs 26.05, `nix-build`, with the sync tests run in the build | `standards-sync.nix` |
 
 The rendered recipes point at the release's own tarball, so a packager
 can take them from the release page as they are.
