@@ -7,6 +7,24 @@ All notable changes to Standards are recorded here, in the form of
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
 [AGENTS.md](AGENTS.md) section 3.
 
+## [0.0.16] - 2026-11-27
+
+### Added
+
+- `AGENTS.md` section 11, dependencies at the strict minimum: no new
+  third-party dependency of any kind without the human's approval of that
+  named dependency; build the capability in-house; cryptographic
+  primitives, audited protocol stacks, the toolchain and OS interfaces
+  stay dependencies; a CI-enforced dependency baseline that only goes
+  down; vendoring is not building it ourselves. Section 1 gains the
+  matching invariant, and section 2 makes "adds no dependency" part of
+  done.
+- `AGENTS.md` section 12, the four principles every change is held to:
+  data first, simplicity first, surgical changes, show me the code,
+  adapted from the Torvalds doctrine
+  (<https://github.com/leopiney/linus-torvalds-skills>).
+- `REPO-STANDARD.md` category 7 and `GEMINI.md` point to both.
+
 ## [0.0.15] - 2026-11-25
 
 ### Added
